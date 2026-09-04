@@ -2,9 +2,9 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import Ingredients from './pages/Ingredients';
+import IngredientsPage from './features/ingredients/pages/IngredientsPage';
 import Recipes from './pages/Recipes';
-import { IngredientsProvider } from './context/IngredientsContext';
+import { IngredientsProvider } from './features/ingredients/IngredientsContext';
 
 export default function App() {
   return (
@@ -15,7 +15,7 @@ export default function App() {
         <div className='flex-1 flex flex-col'>
           <Routes>
             <Route path='/' element={<Home/>}/>
-            <Route path='/ingredients' element={<Ingredients/>}/>
+            <Route path='/ingredients' element={<IngredientsPage/>}/>
             <Route path='/recipes' element={<Recipes/>}/>
             {/* Fallback route for undefined URLs */}
             <Route path='*' element={<Home/>}/>
