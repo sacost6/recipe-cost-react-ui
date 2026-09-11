@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Button from '../../../components/Button'; 
+import Button from '../../../components/Button.tsx'; 
 import type { Ingredient } from '../types.ts';
 import {formatCurrency, formatQuantity} from '../utils/formatters.ts';
 

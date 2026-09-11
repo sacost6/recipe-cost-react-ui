@@ -1,6 +1,6 @@
 import { type Ingredient } from '../types.ts';
-import IngredientRow from './IngredientRow';
-import IngredientEmptyState from './IngredientEmptyState';
+import IngredientRow from './IngredientRow.tsx';
+import IngredientEmptyState from './IngredientEmptyState.tsx';
 
 export interface IngredientListProps {
     ingredients: Ingredient[];
