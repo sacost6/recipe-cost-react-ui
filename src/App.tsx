@@ -5,24 +5,36 @@ import Home from './pages/Home';
 import IngredientsPage from './features/ingredients/pages/IngredientsPage';
 import Recipes from './pages/Recipes';
 import { IngredientsProvider } from './features/ingredients/IngredientsContext';
+import LoginPage from './features/users/pages/LoginPage';
+import RequireAuth from './features/users/components/RequireAuth';
+import RegisterPage from './features/users/pages/RegistrationPage';
 
 export default function App() {
   return (
-    <IngredientsProvider>
-      <div className="min-h-screen bg-background text-text flex flex-col font-sans">
-      <Header/>
-        {/* Dynamic Page Routes */}
-        <div className='flex-1 flex flex-col'>
-          <Routes>
-            <Route path='/' element={<Home/>}/>
-            <Route path='/ingredients' element={<IngredientsPage/>}/>
-            <Route path='/recipes' element={<Recipes/>}/>
-            {/* Fallback route for undefined URLs */}
-            <Route path='*' element={<Home/>}/>
-          </Routes>
-        </div>
-        <Footer/>
+    <div className="min-h-screen bg-background text-text flex flex-col font-sans">
+      <Header />
+      {/* Dynamic Page Routes */}
+      <div className="flex-1 flex flex-col">
+        <Routes>
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/ingredients"
+            element={
+              <RequireAuth>
+                <IngredientsProvider>
+                  <IngredientsPage />
+                </IngredientsProvider>
+              </RequireAuth>
+            }
+          />
+          <Route path="/recipes" element={<Recipes />} />
+          {/* Fallback route for undefined URLs */}
+          <Route path="*" element={<Home />} />
+        </Routes>
       </div>
-    </IngredientsProvider>
+      <Footer />
+    </div>
   );
 }

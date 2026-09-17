@@ -1,5 +1,5 @@
-@import "tailwindcss";
- 
+@import 'tailwindcss';
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -26,7 +26,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
- 
+
   @media (max-width: 1024px) {
     font-size: 16px;
   }
@@ -34,15 +34,14 @@
 
 @theme {
   --color-background: #f6fbf7; /* Very light, soft mint-tinted white */
-  --color-surface: #ffffff;    /* Pure white for cards & navbar */
-  --color-primary: #22c55e;    /* Clean, energetic lime/green */
+  --color-surface: #ffffff; /* Pure white for cards & navbar */
+  --color-primary: #22c55e; /* Clean, energetic lime/green */
   --color-primary-hover: #16a34a; /* Slightly darker green for button hover */
-  --color-accent: #eab308;     /* Bright yellow star/badge accent */
-  --color-text: #0f172a;       /* Dark slate for crisp, readable heading text */
-  --color-muted: #475569;      /* Medium slate for secondary text */
-  --color-border: #e2e8f0;     /* Light subtle border */
+  --color-accent: #eab308; /* Bright yellow star/badge accent */
+  --color-text: #0f172a; /* Dark slate for crisp, readable heading text */
+  --color-muted: #475569; /* Medium slate for secondary text */
+  --color-border: #e2e8f0; /* Light subtle border */
 }
-
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -79,29 +78,32 @@ body {
   margin: 0;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--heading);
+    font-weight: 500;
+    color: var(--color-text);
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  h1 {
+    font-size: 56px;
+    letter-spacing: -1.68px;
+    margin: 32px 0;
+    @media (max-width: 1024px) {
+      font-size: 36px;
+      margin: 20px 0;
+    }
+  }
+
+  h2 {
+    font-size: 24px;
+    line-height: 118%;
+    letter-spacing: -0.24px;
+    margin: 0 0 8px;
+    @media (max-width: 1024px) {
+      font-size: 20px;
+    }
   }
 }
 p {
@@ -122,4 +124,3 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
- 
