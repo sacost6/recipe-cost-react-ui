@@ -3,8 +3,6 @@ import IngredientRow from './IngredientRow.tsx';
 import IngredientEmptyState from './IngredientEmptyState.tsx';
 import { useAuth } from '../../users/AuthContext.tsx';
 
-const { user } = useAuth();
-
 export interface IngredientListProps {
   ingredients: Ingredient[];
   onDelete?: (id: string) => Promise<void>;
@@ -19,6 +17,8 @@ export default function IngredientList({
   if (ingredients.length === 0) {
     return <IngredientEmptyState />;
   }
+
+  const { user } = useAuth();
 
   const showActions = Boolean(onEdit || onDelete);
 
