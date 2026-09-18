@@ -20,7 +20,7 @@ export default function IngredientForm({
   initialValues,
   categories,
   categoriesReady,
-  submitLabel = 'Add Ingredient',
+  submitLabel = 'Save Ingredient',
   onCancel,
 }: IngredientFormProps) {
   const [name, setName] = useState(initialValues?.name ?? '');
@@ -116,7 +116,7 @@ export default function IngredientForm({
           <select
             id="categoryId"
             name="categoryId"
-            value="{selectedCategoryId}"
+            value={selectedCategoryId}
             onChange={(event) => setSelectedCategoryId(event.target.value)}
             disabled={isSubmitting || !categoriesReady}
             className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text"
@@ -165,6 +165,14 @@ export default function IngredientForm({
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Saving...' : submitLabel}
+          </Button>
+          <Button
+            type="submit"
+            variant="outline"
+            className="flex-1"
+            disabled={isSubmitting}
+          >
+            Save & Create Product
           </Button>
           {onCancel && (
             <Button

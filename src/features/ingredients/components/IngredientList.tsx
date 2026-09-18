@@ -1,10 +1,11 @@
-import { type Ingredient } from '../types.ts';
+import type { Ingredient, IngredientCategory } from '../types.ts';
 import IngredientRow from './IngredientRow.tsx';
 import IngredientEmptyState from './IngredientEmptyState.tsx';
 import { useAuth } from '../../users/AuthContext.tsx';
 
 export interface IngredientListProps {
   ingredients: Ingredient[];
+  categories: IngredientCategory[];
   onDelete?: (id: string) => Promise<void>;
   onEdit?: (ingredient: Ingredient) => void;
 }
@@ -44,7 +45,7 @@ export default function IngredientList({
           <thead className="bg-background text-xs uppercase text-muted">
             <tr>
               <th className="px-4 py-3 font-semibold">Ingredient</th>
-
+              <th className="px-4 py-3 font-semibold">Category</th>
               <th className="px-4 py-3 font-semibold">Description</th>
 
               {showActions && (

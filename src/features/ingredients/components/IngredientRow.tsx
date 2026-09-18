@@ -34,7 +34,11 @@ export default function IngredientRow({
       <td className="px-4 py-3">
         <div className="font-medium text-text">{ingredient.name}</div>
       </td>
-
+      <td className="px-4 py-3">
+        <div className="font-medium text-text">
+          {ingredient.category?.name ?? '-'}
+        </div>
+      </td>
       <td className="px-4 py-3 text-muted">{ingredient.description ?? '—'}</td>
       {showActions && (
         <td className="px-4 py-3">

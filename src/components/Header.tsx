@@ -36,12 +36,13 @@ export default function Header() {
 
           {/* Primary Action */}
           <div className="hidden md:flex items-center">
-            <a
-              href="#get-started"
-              className="bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition duration-150"
+            <Link
+              to="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-150"
             >
-              Get Started
-            </a>
+              Log In
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -91,11 +92,11 @@ export default function Header() {
           </Link>
           <div className="pt-2">
             <Link
-              to="/ingredients"
+              to="/login"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-150"
             >
-              Get Started
+              Log In
             </Link>
           </div>
         </div>

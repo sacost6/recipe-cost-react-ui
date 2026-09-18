@@ -4,7 +4,6 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import IngredientsPage from './features/ingredients/pages/IngredientsPage';
 import Recipes from './pages/Recipes';
-import { IngredientsProvider } from './features/ingredients/IngredientsContext';
 import LoginPage from './features/users/pages/LoginPage';
 import RequireAuth from './features/users/components/RequireAuth';
 import RegisterPage from './features/users/pages/RegistrationPage';
@@ -23,9 +22,7 @@ export default function App() {
             path="/ingredients"
             element={
               <RequireAuth>
-                <IngredientsProvider>
-                  <IngredientsPage />
-                </IngredientsProvider>
+                <IngredientsPage />
               </RequireAuth>
             }
           />

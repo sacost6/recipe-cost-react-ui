@@ -1,7 +1,7 @@
 import { listIngredientCategories } from '../api';
 import IngredientForm from '../components/IngredientForm';
 import IngredientList from '../components/IngredientList';
-import { useIngredients } from '../IngredientsContext';
+import { useIngredientContext } from '../IngredientContext';
 import type {
   IngredientCategory,
   CreateIngredientInput,
@@ -25,7 +25,7 @@ export default function IngredientsPage() {
     error,
     refreshIngredients,
     updateIngredient,
-  } = useIngredients();
+  } = useIngredientContext();
 
   const loadCategories = useCallback(async (): Promise<void> => {
     setIsLoadingCategories(true);
@@ -126,6 +126,7 @@ export default function IngredientsPage() {
       ) : (
         <IngredientList
           ingredients={ingredients}
+          categories={categories}
           onDelete={deleteIngredient}
           onEdit={handleEdit}
         />
