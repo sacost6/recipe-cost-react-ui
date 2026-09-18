@@ -14,11 +14,11 @@ export default function IngredientList({
   onDelete,
   onEdit,
 }: IngredientListProps) {
+  const { user } = useAuth();
+
   if (ingredients.length === 0) {
     return <IngredientEmptyState />;
   }
-
-  const { user } = useAuth();
 
   const showActions = Boolean(onEdit || onDelete);
 

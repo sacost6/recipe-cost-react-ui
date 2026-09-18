@@ -2,10 +2,12 @@ import { apiRequest } from '../../lib/http';
 import type {
   CreateIngredientInput,
   Ingredient,
+  IngredientCategory,
   UpdateIngredientInput,
 } from './types';
 
 const INGREDIENTS_PATH = '/api/ingredients';
+const CATEGORIES_PATH = '/api/categories';
 
 export function listIngredients(): Promise<Ingredient[]> {
   return apiRequest<Ingredient[]>(INGREDIENTS_PATH);
@@ -36,4 +38,8 @@ export function deleteIngredient(
   return apiRequest<void>(`${INGREDIENTS_PATH}/${id}`, {
     method: 'DELETE',
   });
+}
+
+export function listIngredientCategories(): Promise<IngredientCategory[]> {
+  return apiRequest<IngredientCategory[]>(`${CATEGORIES_PATH}`);
 }

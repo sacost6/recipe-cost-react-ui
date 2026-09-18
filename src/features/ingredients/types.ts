@@ -1,5 +1,9 @@
 export type IngredientUnit = 'lbs' | 'oz' | 'kg' | 'g' | 'gal' | 'units';
 
+export type UpdateIngredientInput = Partial<CreateIngredientInput> & {
+  version: number;
+};
+
 export interface Ingredient {
   ingredientId: string;
   name: string;
@@ -15,6 +19,7 @@ export interface CreateIngredientInput {
   description?: string | null;
 }
 
-export type UpdateIngredientInput = Partial<CreateIngredientInput> & {
-  version: number;
-};
+export interface IngredientCategory {
+  categoryId: number;
+  name: string;
+}

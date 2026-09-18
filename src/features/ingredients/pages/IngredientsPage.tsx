@@ -1,13 +1,22 @@
+import { listIngredientCategories } from '../api';
 import IngredientForm from '../components/IngredientForm';
 import IngredientList from '../components/IngredientList';
 import { useIngredients } from '../IngredientsContext';
-import type { CreateIngredientInput, Ingredient } from '../types';
-import { useState } from 'react';
+import type {
+  IngredientCategory,
+  CreateIngredientInput,
+  Ingredient,
+} from '../types';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function IngredientsPage() {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
     null,
   );
+  const [categories, setCategories] = useState<IngredientCategory[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
   const {
     ingredients,
     addIngredient,
@@ -17,6 +26,26 @@ export default function IngredientsPage() {
     refreshIngredients,
     updateIngredient,
   } = useIngredients();
+
+  const loadCategories = useCallback(async (): Promise<void> => {
+    setIsLoadingCategories(true);
+    setCategoryError(null);
+
+    try {
+      const loadedCategories = await listIngredientCategories();
+      setCategories(loadedCategories);
+    } catch (error) {
+      setCategoryError(
+        error instanceof Error ? error.message : 'Unable to load categories.',
+      );
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadCategories();
+  }, [loadCategories]);
 
   const handleEdit = (ingredient: Ingredient) => {
     setEditingIngredient(ingredient);
@@ -37,6 +66,7 @@ export default function IngredientsPage() {
 
     await addIngredient(ingredient);
   };
+
   return (
     <main className="space-y-8 p-6">
       <section className="space-y-4">
@@ -58,9 +88,31 @@ export default function IngredientsPage() {
             </button>
           </div>
         )}
+
+        {isLoadingCategories && (
+          <p role="status" className="text-sm text-muted">
+            Loading categories...
+          </p>
+        )}
+
+        {categoryError && (
+          <div className="text-sm text-red-700">
+            <p role="alert">{categoryError}</p>
+            <button
+              type="button"
+              onClick={() => void loadCategories()}
+              className="underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
         <IngredientForm
           initialValues={editingIngredient ?? undefined}
           onSubmit={handleSubmit}
+          categories={categories}
+          categoriesReady={!isLoadingCategories && categoryError === null}
           onCancel={
             editingIngredient ? () => setEditingIngredient(null) : undefined
           }

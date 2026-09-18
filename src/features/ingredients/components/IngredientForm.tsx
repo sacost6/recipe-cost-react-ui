@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../../components/Button';
-import type { Ingredient, CreateIngredientInput } from '../types';
+import type {
+  Ingredient,
+  CreateIngredientInput,
+  IngredientCategory,
+} from '../types';
 
 export interface IngredientFormProps {
   onSubmit: (ingredient: CreateIngredientInput) => void | Promise<void>;
   initialValues?: Partial<Ingredient>;
+  categories: IngredientCategory[];
+  categoriesReady: boolean;
   submitLabel?: string;
   onCancel?: () => void;
 }
@@ -12,6 +18,8 @@ export interface IngredientFormProps {
 export default function IngredientForm({
   onSubmit,
   initialValues,
+  categories,
+  categoriesReady,
   submitLabel = 'Add Ingredient',
   onCancel,
 }: IngredientFormProps) {
@@ -21,22 +29,28 @@ export default function IngredientForm({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    initialValues?.categoryId?.toString() ?? '',
+  );
+
   const resetForm = () => {
     setName('');
     setDescription('');
+    setSelectedCategoryId('');
     setFormError(null);
   };
 
   useEffect(() => {
     setName(initialValues?.name ?? '');
     setDescription(initialValues?.description ?? '');
+    setSelectedCategoryId(initialValues?.categoryId?.toString() ?? '');
     setFormError(null);
   }, [initialValues]);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isSubmitting) return;
+    if (isSubmitting || !categoriesReady) return;
 
     setFormError(null);
 
@@ -53,6 +67,8 @@ export default function IngredientForm({
       await onSubmit({
         name: trimmedName,
         description: description.trim() || null,
+        categoryId:
+          selectedCategoryId === '' ? null : Number(selectedCategoryId),
       });
 
       if (!initialValues) {
@@ -89,6 +105,32 @@ export default function IngredientForm({
             onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2.5 text-sm rounded-lg border border-border bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-colors"
           />
+        </div>
+        <div>
+          <label
+            htmlFor="categoryId"
+            className="block text-sm font-medium text-muted mb-1.5"
+          >
+            Category (optional)
+          </label>
+          <select
+            id="categoryId"
+            name="categoryId"
+            value="{selectedCategoryId}"
+            onChange={(event) => setSelectedCategoryId(event.target.value)}
+            disabled={isSubmitting || !categoriesReady}
+            className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text"
+          >
+            <option value="">No category</option>
+            {categories.map((category) => (
+              <option
+                key={category.categoryId}
+                value={category.categoryId.toString()}
+              >
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label
