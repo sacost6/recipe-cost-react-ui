@@ -1,15 +1,19 @@
 import { apiRequest } from '../../../lib/http';
-import { PRODUCTS_PATH } from './product_api';
+import { endpoints } from '../../../lib/endpoints';
 import type {
   ProductPrice,
   CreateProductPriceInput,
 } from '../types/productPriceTypes';
 
-const PRODUCT_PRICES_PATH = '/api/product-prices';
-
-const getProductPricesPath = (productId: string): string =>
-  `${PRODUCTS_PATH}/${encodeURIComponent(productId)}/prices`;
-
 export function listProductPrices(productId: string): Promise<ProductPrice[]> {
-  return apiRequest<ProductPrice[]>(getProductPricesPath(productId));
+  return apiRequest<ProductPrice[]>(endpoints.products.prices(productId));
+}
+
+export function createProductPrice(
+  input: CreateProductPriceInput,
+): Promise<ProductPrice> {
+  return apiRequest<ProductPrice>(endpoints.productPrices.create, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
 }

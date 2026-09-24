@@ -1,3 +1,4 @@
+import { endpoints } from '../../../lib/endpoints';
 import { apiRequest } from '../../../lib/http';
 import type {
   Product,
@@ -5,8 +6,6 @@ import type {
   UpdateProductInput,
   Unit,
 } from '../types/productTypes';
-
-export const PRODUCTS_PATH = '/api/products';
 
 export async function listProducts(): Promise<Product[]> {
   const products: Product[] = [];
@@ -18,7 +17,9 @@ export async function listProducts(): Promise<Product[]> {
       limit: String(pageSize),
       offset: String(products.length),
     });
-    page = await apiRequest<Product[]>(`${PRODUCTS_PATH}?${query}`);
+    page = await apiRequest<Product[]>(
+      endpoints.products.list(query.toString()),
+    );
     products.push(...page);
   } while (page.length === pageSize);
 
@@ -26,7 +27,7 @@ export async function listProducts(): Promise<Product[]> {
 }
 
 export function createProduct(input: CreateProductInput): Promise<Product> {
-  return apiRequest<Product>(PRODUCTS_PATH, {
+  return apiRequest<Product>(endpoints.products.create, {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -36,14 +37,14 @@ export function updateProduct(
   id: Product['productId'],
   input: UpdateProductInput,
 ): Promise<Product> {
-  return apiRequest<Product>(`${PRODUCTS_PATH}/${id}`, {
+  return apiRequest<Product>(endpoints.products.detail(id), {
     method: 'PATCH',
     body: JSON.stringify(input),
   });
 }
 
 export function deleteProduct(id: Product['productId']): Promise<void> {
-  return apiRequest<void>(`${PRODUCTS_PATH}/${id}`, {
+  return apiRequest<void>(endpoints.products.detail(id), {
     method: 'DELETE',
   });
 }
