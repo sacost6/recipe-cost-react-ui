@@ -1,11 +1,28 @@
-import type { Update } from 'vite';
 import { apiRequest } from '../../lib/http';
-import type { Product, CreateProductInput, UpdateProductInput } from './types';
+import type {
+  Product,
+  CreateProductInput,
+  UpdateProductInput,
+  Unit,
+} from './types';
 
 const PRODUCTS_PATH = '/api/products';
 
-export function listProducts(): Promise<Product[]> {
-  return apiRequest<Product[]>(PRODUCTS_PATH);
+export async function listProducts(): Promise<Product[]> {
+  const products: Product[] = [];
+  const pageSize = 100;
+  let page: Product[];
+
+  do {
+    const query = new URLSearchParams({
+      limit: String(pageSize),
+      offset: String(products.length),
+    });
+    page = await apiRequest<Product[]>(`${PRODUCTS_PATH}?${query}`);
+    products.push(...page);
+  } while (page.length === pageSize);
+
+  return products;
 }
 
 export function createProduct(input: CreateProductInput): Promise<Product> {
@@ -29,4 +46,8 @@ export function deleteProduct(id: Product['productId']): Promise<void> {
   return apiRequest<void>(`${PRODUCTS_PATH}/${id}`, {
     method: 'DELETE',
   });
+}
+
+export function listUnits(): Promise<Unit[]> {
+  return apiRequest<Unit[]>('/api/units');
 }

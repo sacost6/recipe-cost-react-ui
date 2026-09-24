@@ -7,6 +7,8 @@ import Recipes from './pages/Recipes';
 import LoginPage from './features/users/pages/LoginPage';
 import RequireAuth from './features/users/components/RequireAuth';
 import RegisterPage from './features/users/pages/RegistrationPage';
+import { IngredientsProvider } from './features/ingredients/IngredientProvider';
+import { ProductProvider } from './features/products/ProductProvider';
 
 export default function App() {
   return (
@@ -22,7 +24,11 @@ export default function App() {
             path="/ingredients"
             element={
               <RequireAuth>
-                <IngredientsPage />
+                <IngredientsProvider>
+                  <ProductProvider>
+                    <IngredientsPage />
+                  </ProductProvider>
+                </IngredientsProvider>
               </RequireAuth>
             }
           />

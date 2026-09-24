@@ -1,7 +1,7 @@
 export interface Product {
   productId: string;
   ingredientId: string;
-  packageUnitId: string;
+  packageUnitId: number;
   brand: string | null;
   productName: string;
   packageQuantity: string;
@@ -12,7 +12,7 @@ export interface Product {
 
 export interface CreateProductInput {
   ingredientId: string;
-  packageUnitId: string;
+  packageUnitId: number;
   brand: string | null;
   productName: string;
   packageQuantity: string;
@@ -20,5 +20,17 @@ export interface CreateProductInput {
 }
 
 export type UpdateProductInput = Partial<CreateProductInput> & {
+  ingredientId: string;
   version: number;
 };
+
+export type UnitType = 'weight' | 'volume' | 'count';
+
+export interface Unit {
+  unitId: number;
+  name: string;
+  abbreviation: string;
+  unitType: UnitType;
+  conversionToBase: string;
+  createdAt: Date;
+}

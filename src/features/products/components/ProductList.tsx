@@ -1,0 +1,126 @@
+import { useId } from 'react';
+import Button from '../../../components/Button';
+import type { Ingredient } from '../../ingredients/types';
+import type { Product, Unit } from '../types';
+import ProductRow from './ProductRow';
+
+export interface ProductListProps {
+  products: Product[];
+  ingredients: Ingredient[];
+  units: Unit[];
+  isLoading: boolean;
+  error: string | null;
+  onRetry: () => void | Promise<void>;
+  onEdit?: (product: Product) => void;
+  onDelete?: (id: Product['productId']) => Promise<void>;
+}
+
+export default function ProductList({
+  products,
+  ingredients,
+  units,
+  isLoading,
+  error,
+  onRetry,
+  onEdit,
+  onDelete,
+}: ProductListProps) {
+  const headingId = useId();
+  const showActions = Boolean(onEdit || onDelete);
+  const ingredientNames = new Map(
+    ingredients.map((ingredient) => [ingredient.ingredientId, ingredient.name]),
+  );
+  const unitLabels = new Map(
+    units.map((unit) => [unit.unitId, unit.abbreviation]),
+  );
+
+  return (
+    <section className="space-y-3" aria-labelledby={headingId}>
+      <div>
+        <h2 id={headingId} className="text-lg font-semibold text-text">
+          Products
+        </h2>
+        {!isLoading && !error && (
+          <p className="text-sm text-muted">
+            {products.length} {products.length === 1 ? 'product' : 'products'}
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p role="alert" className="text-sm text-red-700">
+            {error}
+          </p>
+          <Button disabled={isLoading} onClick={() => void onRetry()}>
+            Try again
+          </Button>
+        </div>
+      )}
+
+      {isLoading ? (
+        <p
+          role="status"
+          className="rounded-lg border border-border bg-surface p-6 text-sm text-muted"
+        >
+          Loading products...
+        </p>
+      ) : products.length > 0 ? (
+        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-background text-xs uppercase text-muted">
+              <tr>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  Product
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  Ingredient
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  Package
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  UPC
+                </th>
+                {showActions && (
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-semibold"
+                  >
+                    Actions
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <ProductRow
+                  key={product.productId}
+                  product={product}
+                  ingredientName={
+                    ingredientNames.get(product.ingredientId) ??
+                    'Unknown ingredient'
+                  }
+                  unitLabel={
+                    unitLabels.get(product.packageUnitId) ?? 'Unknown unit'
+                  }
+                  showActions={showActions}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : !error ? (
+        <div className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
+          <p>No products yet.</p>
+          <p className="mt-1">
+            Use Save &amp; Create Product on an ingredient to add your first
+            package.
+          </p>
+        </div>
+      ) : null}
+    </section>
+  );
+}

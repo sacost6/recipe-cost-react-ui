@@ -9,6 +9,8 @@ interface ButtonProps {
   onClick?: () => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  name?: string;
+  value?: string;
   disabled?: boolean;
   'aria-label'?: string;
 }
@@ -21,6 +23,8 @@ export default function Button({
   onClick,
   className = '',
   type = 'button',
+  name,
+  value,
   disabled = false,
   'aria-label': ariaLabel,
 }: ButtonProps) {
@@ -78,6 +82,8 @@ export default function Button({
   return (
     <button
       type={type}
+      name={name}
+      value={value}
       onClick={onClick}
       className={combinedClasses}
       disabled={disabled}

@@ -1,13 +1,18 @@
 import { listIngredientCategories } from '../api';
-import IngredientForm from '../components/IngredientForm';
+import IngredientForm, {
+  type IngredientSaveIntent,
+} from '../components/IngredientForm';
 import IngredientList from '../components/IngredientList';
-import { useIngredientContext } from '../IngredientContext';
+import CreateProductPanel from '../../products/components/CreateProductPane';
+import ProductList from '../../products/components/ProductList';
+import { useProductContext } from '../../products/ProductContext';
+import { useIngredientContext } from '../IngredientsContext';
 import type {
   IngredientCategory,
   CreateIngredientInput,
   Ingredient,
 } from '../types';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function IngredientsPage() {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
@@ -16,7 +21,11 @@ export default function IngredientsPage() {
   const [categories, setCategories] = useState<IngredientCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [categoryError, setCategoryError] = useState<string | null>(null);
-
+  const [categoryLoadAttempt, setCategoryLoadAttempt] = useState(0);
+  const [productIngredient, setProductIngredient] = useState<Ingredient | null>(
+    null,
+  );
+  const [productMessage, setProductMessage] = useState<string | null>(null);
   const {
     ingredients,
     addIngredient,
@@ -26,26 +35,47 @@ export default function IngredientsPage() {
     refreshIngredients,
     updateIngredient,
   } = useIngredientContext();
-
-  const loadCategories = useCallback(async (): Promise<void> => {
-    setIsLoadingCategories(true);
-    setCategoryError(null);
-
-    try {
-      const loadedCategories = await listIngredientCategories();
-      setCategories(loadedCategories);
-    } catch (error) {
-      setCategoryError(
-        error instanceof Error ? error.message : 'Unable to load categories.',
-      );
-    } finally {
-      setIsLoadingCategories(false);
-    }
-  }, []);
+  const {
+    products,
+    units,
+    isLoading: isLoadingProducts,
+    error: productError,
+    refreshProducts,
+    deleteProduct,
+  } = useProductContext();
 
   useEffect(() => {
+    let ignore = false;
+
+    async function loadCategories() {
+      try {
+        const loadedCategories = await listIngredientCategories();
+        if (!ignore) setCategories(loadedCategories);
+      } catch (error) {
+        if (!ignore) {
+          setCategoryError(
+            error instanceof Error
+              ? error.message
+              : 'Unable to load categories.',
+          );
+        }
+      } finally {
+        if (!ignore) setIsLoadingCategories(false);
+      }
+    }
+
     void loadCategories();
-  }, [loadCategories]);
+
+    return () => {
+      ignore = true;
+    };
+  }, [categoryLoadAttempt]);
+
+  const retryCategories = () => {
+    setIsLoadingCategories(true);
+    setCategoryError(null);
+    setCategoryLoadAttempt((current) => current + 1);
+  };
 
   const handleEdit = (ingredient: Ingredient) => {
     setEditingIngredient(ingredient);
@@ -53,18 +83,21 @@ export default function IngredientsPage() {
 
   const handleSubmit = async (
     ingredient: CreateIngredientInput,
+    intent: IngredientSaveIntent,
   ): Promise<void> => {
-    if (editingIngredient) {
-      await updateIngredient(editingIngredient.ingredientId, {
-        ...ingredient,
-        version: editingIngredient.version,
-      });
+    const saved = editingIngredient
+      ? await updateIngredient(editingIngredient.ingredientId, {
+          ...ingredient,
+          version: editingIngredient.version,
+        })
+      : await addIngredient(ingredient);
 
-      setEditingIngredient(null);
-      return;
+    setEditingIngredient(null);
+    setProductMessage(null);
+
+    if (intent === 'save-and-product') {
+      setProductIngredient(saved);
     }
-
-    await addIngredient(ingredient);
   };
 
   return (
@@ -100,7 +133,7 @@ export default function IngredientsPage() {
             <p role="alert">{categoryError}</p>
             <button
               type="button"
-              onClick={() => void loadCategories()}
+              onClick={retryCategories}
               className="underline"
             >
               Try again
@@ -108,16 +141,49 @@ export default function IngredientsPage() {
           </div>
         )}
 
-        <IngredientForm
-          initialValues={editingIngredient ?? undefined}
-          onSubmit={handleSubmit}
-          categories={categories}
-          categoriesReady={!isLoadingCategories && categoryError === null}
-          onCancel={
-            editingIngredient ? () => setEditingIngredient(null) : undefined
-          }
-          submitLabel={editingIngredient ? 'Save Changes' : 'Add Ingredient'}
-        />
+        {productMessage && (
+          <p role="status" className="text-sm text-text">
+            {productMessage}
+          </p>
+        )}
+
+        {productIngredient ? (
+          <section
+            className="space-y-4"
+            aria-labelledby="create-product-heading"
+          >
+            <h2 id="create-product-heading" className="text-lg font-semibold">
+              Add a product for {productIngredient.name}
+            </h2>
+            <CreateProductPanel
+              key={productIngredient.ingredientId}
+              ingredientId={productIngredient.ingredientId}
+              onCreated={(product) => {
+                setProductMessage(
+                  `Saved ${product.productName} for ${productIngredient.name}.`,
+                );
+                setProductIngredient(null);
+              }}
+              onCancel={() => setProductIngredient(null)}
+            />
+          </section>
+        ) : (
+          <IngredientForm
+            key={
+              editingIngredient
+                ? `${editingIngredient.ingredientId}:${editingIngredient.version}`
+                : 'new'
+            }
+            initialValues={editingIngredient ?? undefined}
+            onSubmit={handleSubmit}
+            categories={categories}
+            categoriesReady={!isLoadingCategories && categoryError === null}
+            onCancel={
+              editingIngredient ? () => setEditingIngredient(null) : undefined
+            }
+            submitLabel={editingIngredient ? 'Save Changes' : 'Add Ingredient'}
+          />
+        )}
       </section>
       {isLoading ? (
         <div className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
@@ -127,10 +193,19 @@ export default function IngredientsPage() {
         <IngredientList
           ingredients={ingredients}
           categories={categories}
-          onDelete={deleteIngredient}
-          onEdit={handleEdit}
+          onDelete={productIngredient ? undefined : deleteIngredient}
+          onEdit={productIngredient ? undefined : handleEdit}
         />
       )}
+      <ProductList
+        products={products}
+        ingredients={ingredients}
+        units={units}
+        isLoading={isLoadingProducts || isLoading}
+        error={productError}
+        onRetry={refreshProducts}
+        onDelete={productIngredient ? undefined : deleteProduct}
+      />
     </main>
   );
 }

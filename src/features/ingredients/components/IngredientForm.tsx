@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '../../../components/Button';
 import type {
   Ingredient,
@@ -6,8 +6,13 @@ import type {
   IngredientCategory,
 } from '../types';
 
+export type IngredientSaveIntent = 'save' | 'save-and-product';
+
 export interface IngredientFormProps {
-  onSubmit: (ingredient: CreateIngredientInput) => void | Promise<void>;
+  onSubmit: (
+    ingredient: CreateIngredientInput,
+    intent: IngredientSaveIntent,
+  ) => void | Promise<void>;
   initialValues?: Partial<Ingredient>;
   categories: IngredientCategory[];
   categoriesReady: boolean;
@@ -40,17 +45,17 @@ export default function IngredientForm({
     setFormError(null);
   };
 
-  useEffect(() => {
-    setName(initialValues?.name ?? '');
-    setDescription(initialValues?.description ?? '');
-    setSelectedCategoryId(initialValues?.categoryId?.toString() ?? '');
-    setFormError(null);
-  }, [initialValues]);
-
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isSubmitting || !categoriesReady) return;
+
+    const submitter = event.nativeEvent.submitter;
+    const intent: IngredientSaveIntent =
+      submitter instanceof HTMLButtonElement &&
+      submitter.value === 'save-and-product'
+        ? 'save-and-product'
+        : 'save';
 
     setFormError(null);
 
@@ -64,12 +69,15 @@ export default function IngredientForm({
     setIsSubmitting(true);
 
     try {
-      await onSubmit({
-        name: trimmedName,
-        description: description.trim() || null,
-        categoryId:
-          selectedCategoryId === '' ? null : Number(selectedCategoryId),
-      });
+      await onSubmit(
+        {
+          name: trimmedName,
+          description: description.trim() || null,
+          categoryId:
+            selectedCategoryId === '' ? null : Number(selectedCategoryId),
+        },
+        intent,
+      );
 
       if (!initialValues) {
         resetForm();
@@ -160,17 +168,21 @@ export default function IngredientForm({
         <div className="pt-3 flex justify-end gap-3">
           <Button
             type="submit"
+            name="intent"
+            value="save"
             variant="primary"
             className="flex-1"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !categoriesReady}
           >
             {isSubmitting ? 'Saving...' : submitLabel}
           </Button>
           <Button
             type="submit"
+            name="intent"
+            value="save-and-product"
             variant="outline"
             className="flex-1"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !categoriesReady}
           >
             Save & Create Product
           </Button>
