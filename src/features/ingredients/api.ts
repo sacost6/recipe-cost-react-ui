@@ -24,7 +24,7 @@ export function updateIngredient(
   id: Ingredient['ingredientId'],
   input: UpdateIngredientInput,
 ): Promise<Ingredient> {
-  return apiRequest<Ingredient>(endpoints.ingredients.update(id), {
+  return apiRequest<Ingredient>(endpoints.ingredients.detail(id), {
     method: 'PATCH',
     body: JSON.stringify(input),
   });
@@ -33,7 +33,7 @@ export function updateIngredient(
 export function deleteIngredient(
   id: Ingredient['ingredientId'],
 ): Promise<void> {
-  return apiRequest<void>(endpoints.ingredients.delete(id), {
+  return apiRequest<void>(endpoints.ingredients.detail(id), {
     method: 'DELETE',
   });
 }

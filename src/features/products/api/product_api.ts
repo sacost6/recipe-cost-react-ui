@@ -26,6 +26,12 @@ export async function listProducts(): Promise<Product[]> {
   return products;
 }
 
+export function getProductById(
+  productId: Product['productId'],
+): Promise<Product> {
+  return apiRequest<Product>(endpoints.products.detail(productId));
+}
+
 export function createProduct(input: CreateProductInput): Promise<Product> {
   return apiRequest<Product>(endpoints.products.create, {
     method: 'POST',
@@ -50,5 +56,5 @@ export function deleteProduct(id: Product['productId']): Promise<void> {
 }
 
 export function listUnits(): Promise<Unit[]> {
-  return apiRequest<Unit[]>('/api/units');
+  return apiRequest<Unit[]>(endpoints.units.list);
 }

@@ -2,7 +2,8 @@ const PRODUCTS = '/api/products';
 const PRODUCT_PRICES = '/api/product-prices';
 const INGREDIENTS = '/api/ingredients';
 const CATEGORIES = '/api/categories';
-const UNITS = 'api/units';
+const UNITS = '/api/units';
+const STORE_LOCATIONS = '/api/store-locations';
 export const endpoints = {
   products: {
     list: (query: string) => `${PRODUCTS}?${query}`,
@@ -12,14 +13,20 @@ export const endpoints = {
     prices: (productId: string) =>
       `${PRODUCTS}/${encodeURIComponent(productId)}/prices`,
   },
-  productPrices: {
-    create: PRODUCT_PRICES,
-  },
   ingredients: {
     list: INGREDIENTS,
     create: INGREDIENTS,
     detail: (ingredientId: string) =>
       `${INGREDIENTS}/${encodeURIComponent(ingredientId)}`,
+  },
+  storeLocations: {
+    list: STORE_LOCATIONS,
+    create: STORE_LOCATIONS,
+    detail: (storeLocationId: string) =>
+      `${STORE_LOCATIONS}/${encodeURIComponent(storeLocationId)}`,
+  },
+  productPrices: {
+    create: PRODUCT_PRICES,
   },
   categories: {
     list: CATEGORIES,
