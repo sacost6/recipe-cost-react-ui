@@ -32,5 +32,5 @@ export interface Unit {
   abbreviation: string;
   unitType: UnitType;
   conversionToBase: string;
-  createdAt: Date;
+  createdAt: string;
 }

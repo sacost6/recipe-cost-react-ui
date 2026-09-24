@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import Button from '../../../components/Button';
 import type { Ingredient } from '../../ingredients/types';
-import type { Product, Unit } from '../types';
+import type { Product, Unit } from '../types/productTypes';
 import ProductRow from './ProductRow';
 
 export interface ProductListProps {

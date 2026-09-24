@@ -4,14 +4,14 @@ import type {
   CreateProductInput,
   UpdateProductInput,
   Unit,
-} from './types';
+} from './types/productTypes';
 import {
   createProduct,
   deleteProduct as deleteProductRequest,
   listProducts,
   listUnits,
   updateProduct as updateProductRequest,
-} from './api';
+} from './api/product_api';
 import { ProductContext } from './ProductContext';
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {

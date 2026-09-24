@@ -4,7 +4,7 @@ import type {
   CreateProductInput,
   UpdateProductInput,
   Unit,
-} from './types';
+} from './types/productTypes';
 
 export interface ProductContextType {
   products: Product[];

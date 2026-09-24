@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '../../../components/Button';
-import type { Product } from '../types';
+import type { Product } from '../types/productTypes';
 
 export interface ProductRowProps {
   product: Product;

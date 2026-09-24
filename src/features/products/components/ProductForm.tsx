@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { SubmitEvent } from 'react';
 import Button from '../../../components/Button';
-import type { CreateProductInput, Unit } from '../types';
+import type { CreateProductInput, Unit } from '../types/productTypes';
 
 export interface ProductFormProps {
   ingredientId: string;

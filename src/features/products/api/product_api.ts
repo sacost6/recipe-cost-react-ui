@@ -1,12 +1,12 @@
-import { apiRequest } from '../../lib/http';
+import { apiRequest } from '../../../lib/http';
 import type {
   Product,
   CreateProductInput,
   UpdateProductInput,
   Unit,
-} from './types';
+} from '../types/productTypes';
 
-const PRODUCTS_PATH = '/api/products';
+export const PRODUCTS_PATH = '/api/products';
 
 export async function listProducts(): Promise<Product[]> {
   const products: Product[] = [];

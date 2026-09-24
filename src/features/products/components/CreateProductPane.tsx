@@ -1,7 +1,7 @@
 import Button from '../../../components/Button';
 import ProductForm from './ProductForm';
 import { useProductContext } from '../ProductContext';
-import type { CreateProductInput, Product } from '../types';
+import type { CreateProductInput, Product } from '../types/productTypes';
 
 interface CreateProductPanelProps {
   ingredientId: string;
