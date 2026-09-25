@@ -1,48 +1,42 @@
+import Container from './Container';
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-surface border-t border-border text-muted text-sm mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Brand & Creator Info */}
-          <div className="flex items-center gap-2 text-text font-medium">
-            <span className="text-primary text-xl">❖</span>
-            <span>Recipe Cost</span>
-            <span className="text-muted font-normal">
-              • Created by{' '}
-              <span className="text-text font-semibold">Simon Acosta</span>
+    <footer className="mt-auto border-t border-border bg-surface text-sm text-muted">
+      <Container className="py-6">
+        <div className="grid grid-cols-1 items-center gap-3 md:grid-cols-3">
+          {/* Brand */}
+          <div className="flex items-center gap-2 justify-self-center font-medium text-text md:justify-self-start">
+            <span aria-hidden="true" className="text-xl text-primary">
+              ❖
             </span>
+            <span className="whitespace-nowrap">Recipe Cost</span>
           </div>
 
-          {/* Quick Links */}
-          <nav className="flex items-center space-x-6">
-            <a
-              href="#ingredients"
-              className="hover:text-primary transition duration-150"
-            >
+          {/* Quick links */}
+          <nav
+            aria-label="Footer"
+            className="flex flex-wrap justify-center justify-self-center gap-x-4 gap-y-2"
+          >
+            <a href="#ingredients" className="transition hover:text-primary">
               Ingredients
             </a>
-            <a
-              href="#recipes"
-              className="hover:text-primary transition duration-150"
-            >
+            <a href="#recipes" className="transition hover:text-primary">
               Recipes
             </a>
-            <a
-              href="#privacy"
-              className="hover:text-primary transition duration-150"
-            >
+            <a href="#privacy" className="transition hover:text-primary">
               Privacy
             </a>
           </nav>
 
-          {/* Dynamic Copyright */}
-          <div className="text-xs text-muted">
-            © {currentYear} Simon Acosta. All rights reserved.
-          </div>
+          {/* Copyright */}
+          <p className="justify-self-center text-center text-xs md:justify-self-end md:text-right">
+            © {currentYear} Simon Acosta.
+          </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

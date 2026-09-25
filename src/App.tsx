@@ -9,13 +9,14 @@ import RequireAuth from './features/users/components/RequireAuth';
 import RegisterPage from './features/users/pages/RegistrationPage';
 import { IngredientsProvider } from './features/ingredients/IngredientProvider';
 import { ProductProvider } from './features/products/ProductProvider';
+import Container from './components/Container';
 
 export default function App() {
   return (
     <div className="min-h-screen bg-background text-text flex flex-col font-sans">
       <Header />
       {/* Dynamic Page Routes */}
-      <div className="flex-1 flex flex-col">
+      <Container className="flex flex-1 flex-col">
         <Routes>
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -36,7 +37,7 @@ export default function App() {
           {/* Fallback route for undefined URLs */}
           <Route path="*" element={<Home />} />
         </Routes>
-      </div>
+      </Container>
       <Footer />
     </div>
   );

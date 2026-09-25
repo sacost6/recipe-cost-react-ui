@@ -124,7 +124,7 @@ export default function IngredientsPage() {
   const showList = ingredients.length > 0 || (!isLoading && error === null);
 
   return (
-    <main className="space-y-8 p-6">
+    <main className="space-y-8 py-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-text">Ingredients</h1>

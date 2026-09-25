@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import Container from './Container';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,8 +11,8 @@ export default function Header() {
       : 'text-muted hover:text-text hover:bg-slate-100 px-3 py-2 rounded-lg transition duration-150 font-medium';
 
   return (
-    <header className="bg-surface/80 backdrop-blur-md border-b border-border text-text sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-surface border-b border-border text-text sticky top-0 z-50">
+      <Container>
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
           <div className="shrink-0 font-bold text-xl tracking-tight text-text">
@@ -71,34 +72,36 @@ export default function Header() {
             </button>
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-surface border-b border-border px-4 pt-2 pb-4 space-y-1">
-          <Link
-            to="/ingredients"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-text hover:bg-slate-100"
-          >
-            Ingredients
-          </Link>
-          <Link
-            to="/recipes"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-text hover:bg-slate-100"
-          >
-            Recipes
-          </Link>
-          <div className="pt-2">
+        <div className="md:hidden bg-surface border-b border-border">
+          <Container className="space-y-1 pt-2 pb-4">
             <Link
-              to="/login"
+              to="/ingredients"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-150"
+              className="block px-3 py-2 rounded-md text-base font-medium text-text hover:bg-slate-100"
             >
-              Log In
+              Ingredients
             </Link>
-          </div>
+            <Link
+              to="/recipes"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-md text-base font-medium text-text hover:bg-slate-100"
+            >
+              Recipes
+            </Link>
+            <div className="pt-2">
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-150"
+              >
+                Log In
+              </Link>
+            </div>
+          </Container>
         </div>
       )}
     </header>
