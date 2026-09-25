@@ -1,33 +1,40 @@
 import { useState } from 'react';
 import type { SubmitEvent } from 'react';
 import Button from '../../../components/Button';
-import type { CreateProductInput, Unit } from '../types/productTypes';
+import type { CreateProductInput, Product, Unit } from '../types/productTypes';
+import { inputClassName } from '../utils/classNames';
 
 export interface ProductFormProps {
   ingredientId: string;
-  onSubmit: (product: CreateProductInput) => void | Promise<void>;
+  initialValues?: Product;
   units: Unit[];
   unitReady: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  onSubmit: (product: CreateProductInput) => void | Promise<void>;
 }
-
-const inputClassName =
-  'w-full rounded-lg border border-border bg-white px-3 py-2 text-text';
 
 export default function ProductForm({
   ingredientId,
+  initialValues,
   onSubmit,
   units,
   unitReady,
   submitLabel = 'Save Product',
   onCancel,
 }: ProductFormProps) {
-  const [productName, setProductName] = useState('');
-  const [brand, setBrand] = useState('');
-  const [packageQuantity, setPackageQuantity] = useState('');
-  const [selectedUnitId, setSelectedUnitId] = useState('');
-  const [upc, setUpc] = useState('');
+  const [productName, setProductName] = useState(
+    initialValues?.productName ?? '',
+  );
+
+  const [brand, setBrand] = useState(initialValues?.brand ?? '');
+  const [packageQuantity, setPackageQuantity] = useState(
+    initialValues?.packageQuantity ?? '',
+  );
+  const [selectedUnitId, setSelectedUnitId] = useState(
+    initialValues ? String(initialValues.packageUnitId) : '',
+  );
+  const [upc, setUpc] = useState(initialValues?.upc ?? '');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -90,7 +97,9 @@ export default function ProductForm({
         upc: upc.trim() || null,
       });
 
-      resetForm();
+      if (!initialValues) {
+        resetForm();
+      }
     } catch (error) {
       setFormError(
         error instanceof Error ? error.message : 'Unable to save the product.',

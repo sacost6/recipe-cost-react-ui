@@ -4,20 +4,20 @@ import type { Product } from '../types/productTypes';
 
 export interface ProductRowProps {
   product: Product;
-  ingredientName: string;
   unitLabel: string;
   showActions: boolean;
   onEdit?: (product: Product) => void;
   onDelete?: (id: Product['productId']) => Promise<void>;
+  onViewPrices?: (product: Product) => void;
 }
 
 export default function ProductRow({
   product,
-  ingredientName,
   unitLabel,
   showActions,
   onEdit,
   onDelete,
+  onViewPrices,
 }: ProductRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -53,13 +53,9 @@ export default function ProductRow({
         </div>
       </td>
 
-      <td className="px-4 py-3 text-muted">{ingredientName}</td>
-
       <td className="px-4 py-3 text-muted">
         {product.packageQuantity} {unitLabel}
       </td>
-
-      <td className="px-4 py-3 text-muted">{product.upc ?? '-'}</td>
 
       {showActions && (
         <td className="px-4 py-3">
@@ -73,6 +69,18 @@ export default function ProductRow({
                 onClick={() => onEdit(product)}
               >
                 Edit
+              </Button>
+            )}
+
+            {onViewPrices && (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={isDeleting}
+                onClick={() => onViewPrices(product)}
+                aria-label={`View prices for ${product.productName}`}
+              >
+                Prices
               </Button>
             )}
 

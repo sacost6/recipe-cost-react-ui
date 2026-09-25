@@ -1,31 +1,16 @@
 import { listIngredientCategories } from '../api';
-import IngredientForm, {
-  type IngredientSaveIntent,
-} from '../components/IngredientForm';
+import Button from '../../../components/Button';
 import IngredientList from '../components/IngredientList';
-import CreateProductPanel from '../../products/components/CreateProductPane';
-import ProductList from '../../products/components/ProductList';
-import { useProductContext } from '../../products/ProductContext';
 import { useIngredientContext } from '../IngredientsContext';
+import { useState, useEffect } from 'react';
+import IngredientForm from '../components/IngredientForm';
 import type {
   IngredientCategory,
   CreateIngredientInput,
   Ingredient,
 } from '../types';
-import { useState, useEffect } from 'react';
 
 export default function IngredientsPage() {
-  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
-    null,
-  );
-  const [categories, setCategories] = useState<IngredientCategory[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [categoryError, setCategoryError] = useState<string | null>(null);
-  const [categoryLoadAttempt, setCategoryLoadAttempt] = useState(0);
-  const [productIngredient, setProductIngredient] = useState<Ingredient | null>(
-    null,
-  );
-  const [productMessage, setProductMessage] = useState<string | null>(null);
   const {
     ingredients,
     addIngredient,
@@ -35,22 +20,29 @@ export default function IngredientsPage() {
     refreshIngredients,
     updateIngredient,
   } = useIngredientContext();
-  const {
-    products,
-    units,
-    isLoading: isLoadingProducts,
-    error: productError,
-    refreshProducts,
-    deleteProduct,
-  } = useProductContext();
+
+  const [categories, setCategories] = useState<IngredientCategory[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [categoryLoadAttempt, setCategoryLoadAttempt] = useState(0);
+
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [showIngredientForm, setShowIngredientForm] = useState(false);
+  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
+    null,
+  );
+  const [expandingIngredientId, setExpandedIngredientId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadCategories() {
       try {
-        const loadedCategories = await listIngredientCategories();
-        if (!ignore) setCategories(loadedCategories);
+        const loaded = await listIngredientCategories();
+        if (!ignore) setCategories(loaded);
       } catch (error) {
         if (!ignore) {
           setCategoryError(
@@ -71,103 +63,131 @@ export default function IngredientsPage() {
     };
   }, [categoryLoadAttempt]);
 
-  const retryCategories = () => {
+  function retryCategories() {
     setIsLoadingCategories(true);
     setCategoryError(null);
     setCategoryLoadAttempt((current) => current + 1);
-  };
+  }
 
-  const handleEdit = (ingredient: Ingredient) => {
+  function handleAdd() {
+    setEditingIngredient(null);
+    setExpandedIngredientId(null);
+    setShowIngredientForm(true);
+  }
+
+  function handleEdit(ingredient: Ingredient) {
     setEditingIngredient(ingredient);
-  };
+    setExpandedIngredientId(null);
+    setShowIngredientForm(true);
+  }
 
-  const handleSubmit = async (
-    ingredient: CreateIngredientInput,
-    intent: IngredientSaveIntent,
-  ): Promise<void> => {
+  function closeIngredientForm() {
+    setShowIngredientForm(false);
+    setEditingIngredient(null);
+  }
+
+  function handleToggle(ingredientId: string) {
+    if (showIngredientForm || isLoading) return;
+
+    setExpandedIngredientId((current) =>
+      current === ingredientId ? null : ingredientId,
+    );
+  }
+
+  async function handleSubmit(input: CreateIngredientInput): Promise<void> {
     const saved = editingIngredient
       ? await updateIngredient(editingIngredient.ingredientId, {
-          ...ingredient,
+          ...input,
           version: editingIngredient.version,
         })
-      : await addIngredient(ingredient);
+      : await addIngredient(input);
 
+    closeIngredientForm();
+    setSearch('');
+    setCategoryFilter('');
+    setExpandedIngredientId(saved.ingredientId);
     setEditingIngredient(null);
-    setProductMessage(null);
+  }
 
-    if (intent === 'save-and-product') {
-      setProductIngredient(saved);
+  async function handleDelete(ingredientId: string): Promise<void> {
+    try {
+      await deleteIngredient(ingredientId);
+      setExpandedIngredientId((current) =>
+        current === ingredientId ? null : current,
+      );
+    } catch {
+      // IngredientProvider already sets the error displayed on this page.
     }
-  };
+  }
+
+  const categoriesReady = !isLoadingCategories && categoryError === null;
+  const showList = ingredients.length > 0 || (!isLoading && error === null);
 
   return (
     <main className="space-y-8 p-6">
-      <section className="space-y-4">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-text">Ingredients</h1>
           <p className="text-sm text-muted">
-            Track purchase prices and unit costs for your recipe ingredients.
+            Expand an ingredient to manage its products and purchase prices
           </p>
         </div>
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            <p>{error}</p>
-            <button
-              type="button"
-              onClick={() => void refreshIngredients()}
-              className="mt-2 font-medium underline"
-            >
-              Try again
-            </button>
-          </div>
-        )}
 
-        {isLoadingCategories && (
-          <p role="status" className="text-sm text-muted">
-            Loading categories...
-          </p>
-        )}
+        <Button
+          type="button"
+          onClick={handleAdd}
+          disabled={showIngredientForm || isLoading}
+        >
+          Add ingredient
+        </Button>
+      </header>
 
-        {categoryError && (
-          <div className="text-sm text-red-700">
-            <p role="alert">{categoryError}</p>
-            <button
-              type="button"
-              onClick={retryCategories}
-              className="underline"
-            >
-              Try again
-            </button>
-          </div>
-        )}
-
-        {productMessage && (
-          <p role="status" className="text-sm text-text">
-            {productMessage}
-          </p>
-        )}
-
-        {productIngredient ? (
-          <section
-            className="space-y-4"
-            aria-labelledby="create-product-heading"
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p role="alert">{error}</p>
+          <Button
+            type="button"
+            variant="plain"
+            onClick={() => void refreshIngredients()}
+            disabled={isLoading}
+            className="mt-2 font-medium underline"
           >
-            <h2 id="create-product-heading" className="text-lg font-semibold">
-              Add a product for {productIngredient.name}
-            </h2>
-            <CreateProductPanel
-              key={productIngredient.ingredientId}
-              ingredientId={productIngredient.ingredientId}
-              onCreated={(product) => {
-                setProductMessage(
-                  `Saved ${product.productName} for ${productIngredient.name}.`,
-                );
-                setProductIngredient(null);
-              }}
-              onCancel={() => setProductIngredient(null)}
-            />
-          </section>
-        ) : (
+            Reload ingredients
+          </Button>
+        </div>
+      )}
+
+      {isLoadingCategories && (
+        <p role="status" className="text-sm text-muted">
+          Loading categories...
+        </p>
+      )}
+
+      {categoryError && (
+        <div className="text-sm text-red-700">
+          <p role="alert">{categoryError}</p>
+          <Button
+            type="button"
+            variant="plain"
+            onClick={retryCategories}
+            className="underline"
+          >
+            Retry categories
+          </Button>
+        </div>
+      )}
+
+      {showIngredientForm && (
+        <section
+          className="space-y-3"
+          aria-labelledby="ingredient-form-heading"
+        >
+          <h2 id="ingredient-form-heading" className="text-lg font-semibold">
+            {editingIngredient
+              ? `Edit ${editingIngredient.name}`
+              : 'Add ingredient'}
+          </h2>
+
           <IngredientForm
             key={
               editingIngredient
@@ -177,35 +197,76 @@ export default function IngredientsPage() {
             initialValues={editingIngredient ?? undefined}
             onSubmit={handleSubmit}
             categories={categories}
-            categoriesReady={!isLoadingCategories && categoryError === null}
-            onCancel={
-              editingIngredient ? () => setEditingIngredient(null) : undefined
-            }
-            submitLabel={editingIngredient ? 'Save Changes' : 'Add Ingredient'}
+            categoriesReady={categoriesReady}
+            submitLabel={editingIngredient ? 'Save changes' : 'Add ingredient'}
+            onCancel={closeIngredientForm}
           />
-        )}
-      </section>
-      {isLoading ? (
-        <div className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
-          Loading ingredients...
+        </section>
+      )}
+
+      <div className="flex flex-wrap gap-4">
+        <div className="min-w-0 flex-1">
+          <label
+            htmlFor="ingredient-search"
+            className="block text-sm font-medium"
+          >
+            Search ingredients
+          </label>
+          <input
+            id="ingredient-search"
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by name"
+            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2"
+          />
         </div>
-      ) : (
+
+        <div>
+          <label
+            htmlFor="ingredient-category-filter"
+            className="block text-sm font-medium"
+          >
+            Category
+          </label>
+          <select
+            id="ingredient-category-filter"
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            disabled={!categoriesReady}
+            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2"
+          >
+            <option value="">All categories</option>
+            {categories.map((category) => (
+              <option
+                key={category.categoryId}
+                value={String(category.categoryId)}
+              >
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {isLoading && (
+        <p role="status" className="text-sm text-muted">
+          Loading ingredients..
+        </p>
+      )}
+
+      {showList && (
         <IngredientList
           ingredients={ingredients}
-          categories={categories}
-          onDelete={productIngredient ? undefined : deleteIngredient}
-          onEdit={productIngredient ? undefined : handleEdit}
+          expandedIngredientId={expandingIngredientId}
+          onToggle={handleToggle}
+          search={search}
+          categoryFilter={categoryFilter}
+          disabled={showIngredientForm || isLoading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       )}
-      <ProductList
-        products={products}
-        ingredients={ingredients}
-        units={units}
-        isLoading={isLoadingProducts || isLoading}
-        error={productError}
-        onRetry={refreshProducts}
-        onDelete={productIngredient ? undefined : deleteProduct}
-      />
     </main>
   );
 }

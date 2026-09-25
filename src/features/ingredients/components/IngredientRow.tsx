@@ -5,6 +5,12 @@ import type { Ingredient } from '../types.ts';
 type IngredientRowProps = {
   ingredient: Ingredient;
   showActions: boolean;
+  isExpanded: boolean;
+  panelId: string;
+  hidden?: boolean;
+  disabled?: boolean;
+  productCountLabel: string;
+  onToggle: () => void;
   onEdit?: (ingredient: Ingredient) => void;
   onDelete?: (id: string) => Promise<void>;
 };
@@ -12,6 +18,12 @@ type IngredientRowProps = {
 export default function IngredientRow({
   ingredient,
   showActions,
+  isExpanded,
+  panelId,
+  productCountLabel,
+  hidden = false,
+  disabled = false,
+  onToggle,
   onEdit,
   onDelete,
 }: IngredientRowProps) {
@@ -30,18 +42,29 @@ export default function IngredientRow({
   };
 
   return (
-    <tr className="border-t border-border">
+    <tr hidden={hidden} className="border-t border-border">
       <td className="px-4 py-3">
-        <div className="font-medium text-text">{ingredient.name}</div>
+        <Button
+          type="button"
+          variant="plain"
+          aria-expanded={isExpanded}
+          aria-controls={panelId}
+          disabled={disabled || isDeleting}
+          onClick={onToggle}
+          className="inline-flex items-center gap-2 rounded text-left font-medium text-text"
+        >
+          <span aria-hidden="true">{isExpanded ? '▾' : '▸'}</span>
+          {ingredient.name}
+        </Button>
       </td>
       <td className="px-4 py-3">
         <div className="font-medium text-text">
           {ingredient.category?.name ?? '-'}
         </div>
       </td>
-      <td className="px-4 py-3 text-muted">{ingredient.description ?? '—'}</td>
+      <td className="px-4 py-3 text-muted">{productCountLabel}</td>
       {showActions && (
-        <td className="px-4 py-3">
+        <td className="w-px whitespace-nowrap px-4 py-3">
           <div className="flex justify-end gap-2">
             {onEdit && (
               <Button
@@ -49,6 +72,7 @@ export default function IngredientRow({
                 variant="secondary"
                 className="px-3 py-2 text-sm"
                 aria-label={`Edit ${ingredient.name}`}
+                disabled={disabled || isDeleting}
                 onClick={() => onEdit(ingredient)}
               >
                 Edit
@@ -58,7 +82,7 @@ export default function IngredientRow({
               <Button
                 type="button"
                 variant="destructive"
-                disabled={isDeleting}
+                disabled={disabled || isDeleting}
                 aria-label={`Delete ${ingredient.name}`}
                 onClick={handleDelete}
               >

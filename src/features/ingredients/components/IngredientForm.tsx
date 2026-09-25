@@ -6,13 +6,8 @@ import type {
   IngredientCategory,
 } from '../types';
 
-export type IngredientSaveIntent = 'save' | 'save-and-product';
-
 export interface IngredientFormProps {
-  onSubmit: (
-    ingredient: CreateIngredientInput,
-    intent: IngredientSaveIntent,
-  ) => void | Promise<void>;
+  onSubmit: (ingredient: CreateIngredientInput) => void | Promise<void>;
   initialValues?: Partial<Ingredient>;
   categories: IngredientCategory[];
   categoriesReady: boolean;
@@ -50,13 +45,6 @@ export default function IngredientForm({
 
     if (isSubmitting || !categoriesReady) return;
 
-    const submitter = event.nativeEvent.submitter;
-    const intent: IngredientSaveIntent =
-      submitter instanceof HTMLButtonElement &&
-      submitter.value === 'save-and-product'
-        ? 'save-and-product'
-        : 'save';
-
     setFormError(null);
 
     const trimmedName = name.trim();
@@ -69,15 +57,12 @@ export default function IngredientForm({
     setIsSubmitting(true);
 
     try {
-      await onSubmit(
-        {
-          name: trimmedName,
-          description: description.trim() || null,
-          categoryId:
-            selectedCategoryId === '' ? null : Number(selectedCategoryId),
-        },
-        intent,
-      );
+      await onSubmit({
+        name: trimmedName,
+        description: description.trim() || null,
+        categoryId:
+          selectedCategoryId === '' ? null : Number(selectedCategoryId),
+      });
 
       if (!initialValues) {
         resetForm();
@@ -168,23 +153,11 @@ export default function IngredientForm({
         <div className="pt-3 flex justify-end gap-3">
           <Button
             type="submit"
-            name="intent"
-            value="save"
             variant="primary"
             className="flex-1"
             disabled={isSubmitting || !categoriesReady}
           >
             {isSubmitting ? 'Saving...' : submitLabel}
-          </Button>
-          <Button
-            type="submit"
-            name="intent"
-            value="save-and-product"
-            variant="outline"
-            className="flex-1"
-            disabled={isSubmitting || !categoriesReady}
-          >
-            Save & Create Product
           </Button>
           {onCancel && (
             <Button

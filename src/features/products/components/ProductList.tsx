@@ -1,35 +1,32 @@
 import { useId } from 'react';
 import Button from '../../../components/Button';
-import type { Ingredient } from '../../ingredients/types';
 import type { Product, Unit } from '../types/productTypes';
 import ProductRow from './ProductRow';
 
 export interface ProductListProps {
   products: Product[];
-  ingredients: Ingredient[];
   units: Unit[];
   isLoading: boolean;
   error: string | null;
   onRetry: () => void | Promise<void>;
   onEdit?: (product: Product) => void;
   onDelete?: (id: Product['productId']) => Promise<void>;
+  onViewPrices?: (product: Product) => void;
 }
 
 export default function ProductList({
   products,
-  ingredients,
   units,
   isLoading,
   error,
   onRetry,
   onEdit,
   onDelete,
+  onViewPrices,
 }: ProductListProps) {
   const headingId = useId();
-  const showActions = Boolean(onEdit || onDelete);
-  const ingredientNames = new Map(
-    ingredients.map((ingredient) => [ingredient.ingredientId, ingredient.name]),
-  );
+  const showActions = Boolean(onEdit || onDelete || onViewPrices);
+
   const unitLabels = new Map(
     units.map((unit) => [unit.unitId, unit.abbreviation]),
   );
@@ -74,13 +71,7 @@ export default function ProductList({
                   Product
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold">
-                  Ingredient
-                </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
                   Package
-                </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  UPC
                 </th>
                 {showActions && (
                   <th
@@ -97,16 +88,13 @@ export default function ProductList({
                 <ProductRow
                   key={product.productId}
                   product={product}
-                  ingredientName={
-                    ingredientNames.get(product.ingredientId) ??
-                    'Unknown ingredient'
-                  }
                   unitLabel={
                     unitLabels.get(product.packageUnitId) ?? 'Unknown unit'
                   }
                   showActions={showActions}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onViewPrices={onViewPrices}
                 />
               ))}
             </tbody>
@@ -114,11 +102,8 @@ export default function ProductList({
         </div>
       ) : !error ? (
         <div className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
-          <p>No products yet.</p>
-          <p className="mt-1">
-            Use Save &amp; Create Product on an ingredient to add your first
-            package.
-          </p>
+          <p>No products for this ingredient yet.</p>
+          <p className="mt-1">Use Add product to record a package.</p>
         </div>
       ) : null}
     </section>
