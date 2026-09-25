@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SubmitEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Button from '../../../components/Button';
 import { useAuth } from '../AuthContext';
 
@@ -87,6 +87,16 @@ export default function LoginPage() {
           {isSubmitting ? 'Logging in...' : 'Log in'}
         </Button>
       </form>
+
+      <div className="mt-4 text-center text-sm text-muted">
+        No account?{' '}
+        <Link
+          to="/register"
+          className="font-semibold text-primary underline hover:text-primary-hover"
+        >
+          Register here.
+        </Link>
+      </div>
     </main>
   );
 }
