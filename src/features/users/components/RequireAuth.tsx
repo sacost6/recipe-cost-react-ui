@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import Button from '../../../components/Button';
 
 export default function RequireAuth({ children }: { children: ReactNode }) {
   const { user, isLoading, error, refreshUser } = useAuth();
@@ -13,9 +14,13 @@ export default function RequireAuth({ children }: { children: ReactNode }) {
     return (
       <div className="p-6">
         <p role="alert">{error}</p>
-        <button type="button" onClick={() => void refreshUser()}>
+        <Button
+          type="button"
+          variant="plain"
+          onClick={() => void refreshUser()}
+        >
           Try again
-        </button>
+        </Button>
       </div>
     );
   }
