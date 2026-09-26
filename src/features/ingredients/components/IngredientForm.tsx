@@ -96,7 +96,7 @@ export default function IngredientForm({
             maxLength={100}
             disabled={isSubmitting}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2.5 text-sm rounded-lg border border-border bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-colors"
+            className="w-full px-3 py-2.5 text-sm rounded-lg border border-input-border bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-colors"
           />
         </div>
         <div>
@@ -112,7 +112,7 @@ export default function IngredientForm({
             value={selectedCategoryId}
             onChange={(event) => setSelectedCategoryId(event.target.value)}
             disabled={isSubmitting || !categoriesReady}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text"
+            className="w-full rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm text-text"
           >
             <option value="">No category</option>
             {categories.map((category) => (
@@ -140,7 +140,7 @@ export default function IngredientForm({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text"
+            className="w-full rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm text-text"
           />
         </div>
 

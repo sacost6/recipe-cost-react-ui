@@ -133,6 +133,7 @@ export default function ProductForm({
             required
             type="text"
             maxLength={150}
+            placeholder="e.g. 2% Milk"
             value={productName}
             onChange={(event) => setProductName(event.target.value)}
             className={inputClassName}
@@ -145,48 +146,51 @@ export default function ProductForm({
             type="text"
             maxLength={100}
             value={brand}
+            placeholder="e.g. Fairlife"
             onChange={(event) => setBrand(event.target.value)}
             className={inputClassName}
           />
         </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block min-w-0">
+            <span className="mb-1 block text-sm">Package quantity</span>
+            <input
+              required
+              type="text"
+              inputMode="decimal"
+              maxLength={13}
+              value={packageQuantity}
+              placeholder="e.g. 1"
+              onChange={(event) => setPackageQuantity(event.target.value)}
+              className={inputClassName}
+            />
+          </label>
 
-        <label className="block">
-          <span className="mb-1 block text-sm">Package quantity</span>
-          <input
-            required
-            type="text"
-            inputMode="decimal"
-            maxLength={13}
-            value={packageQuantity}
-            onChange={(event) => setPackageQuantity(event.target.value)}
-            className={inputClassName}
-          />
-        </label>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-sm">Package unit</span>
+            <select
+              required
+              value={selectedUnitId}
+              onChange={(event) => setSelectedUnitId(event.target.value)}
+              className={inputClassName}
+            >
+              <option value="">Select a unit</option>
 
-        <label className="block">
-          <span className="mb-1 block text-sm">Package unit</span>
-          <select
-            required
-            value={selectedUnitId}
-            onChange={(event) => setSelectedUnitId(event.target.value)}
-            className={inputClassName}
-          >
-            <option value="">Select a unit</option>
-
-            {units.map((unit) => (
-              <option key={unit.unitId} value={unit.unitId}>
-                {unit.name} ({unit.abbreviation})
-              </option>
-            ))}
-          </select>
-        </label>
-
+              {units.map((unit) => (
+                <option key={unit.unitId} value={unit.unitId}>
+                  {unit.name} ({unit.abbreviation})
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <label className="block">
           <span className="mb-1 block text-sm">UPC (optional)</span>
           <input
             type="text"
             maxLength={20}
             value={upc}
+            placeholder="e.g. 012345678905"
             onChange={(event) => setUpc(event.target.value)}
             className={inputClassName}
           />
@@ -199,7 +203,7 @@ export default function ProductForm({
         </p>
       )}
 
-      <div className="flex justify-end gap-3">
+      <div className="sticky bottom-0 z-10 -mx-6 -mb-6 flex flex-wrap justify-end gap-3 rounded-b-xl border-t border-border bg-surface px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {onCancel && (
           <Button
             type="button"

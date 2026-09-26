@@ -35,12 +35,13 @@
 @theme {
   --color-background: #f6fbf7; /* Very light, soft mint-tinted white */
   --color-surface: #ffffff; /* Pure white for cards & navbar */
-  --color-primary: #22c55e; /* Clean, energetic lime/green */
-  --color-primary-hover: #16a34a; /* Slightly darker green for button hover */
+  --color-primary: #15803d;
+  --color-primary-hover: #166534;
   --color-accent: #eab308; /* Bright yellow star/badge accent */
   --color-text: #0f172a; /* Dark slate for crisp, readable heading text */
   --color-muted: #475569; /* Medium slate for secondary text */
   --color-border: #e2e8f0; /* Light subtle border */
+  --color-input-border: #64748b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,6 +73,24 @@
 
 body {
   margin: 0;
+}
+
+@keyframes detail-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .detail-enter {
+    animation: detail-enter 200ms ease-out;
+  }
 }
 
 @layer base {

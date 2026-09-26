@@ -60,7 +60,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-border p-2"
+            className="w-full rounded-lg border border-input-border p-2"
           />
         </div>
 
@@ -79,7 +79,7 @@ export default function RegisterPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-border p-2"
+            className="w-full rounded-lg border border-input-border p-2"
           />
         </div>
 
@@ -96,7 +96,7 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-border p-2"
+            className="w-full rounded-lg border border-input-border p-2"
           />
         </div>
 

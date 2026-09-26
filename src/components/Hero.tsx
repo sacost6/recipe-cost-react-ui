@@ -17,7 +17,8 @@ export default function Hero() {
         max-w-3xl
         leading-tight
       >
-        Calculate Every Recipe's <span className="text-primary">True Cost</span>
+        Calculate Every Recipe's{' '}
+        <span className="whitespace-nowrap text-primary">True Cost</span>
       </h1>
 
       {/* Subtitle */}
