@@ -1,109 +1,117 @@
 import { useState } from 'react';
 import Button from '../../../components/Button';
+import DeleteButton from '../../../components/DeleteButton';
+import ExpandableRowToggleButton from '../../../components/ExpandableRowToggleButton';
 import type { Product } from '../types/productTypes';
-
+import { getExpandableTableRowProps } from '../../../lib/expandableTableRow';
 export interface ProductRowProps {
   product: Product;
-  unitLabel: string;
   showActions: boolean;
+  isExpanded: boolean;
+  panelId: string;
+  hidden?: boolean;
+  disabled?: boolean;
+  unitLabel: string;
+  onProductToggle: () => void;
   onEdit?: (product: Product) => void;
   onDelete?: (id: Product['productId']) => Promise<void>;
-  onViewPrices?: (product: Product) => void;
 }
 
 export default function ProductRow({
   product,
   unitLabel,
   showActions,
+  isExpanded,
+  panelId,
+  hidden = false,
+  disabled = false,
   onEdit,
   onDelete,
-  onViewPrices,
+  onProductToggle,
 }: ProductRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const isDisabled = disabled || isDeleting;
 
   async function handleDelete() {
-    if (!onDelete || isDeleting) {
+    if (!onDelete || isDisabled) {
       return;
     }
 
     setIsDeleting(true);
-    setDeleteError(null);
 
     try {
       await onDelete(product.productId);
-    } catch (error) {
-      setDeleteError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to delete this product.',
-      );
     } finally {
       setIsDeleting(false);
     }
   }
 
   return (
-    <tr className="border-t border-border">
-      <td className="px-4 py-3">
-        <div className="font-medium text-text">{product.productName}</div>
-
-        <div className="text-sm text-muted">
-          {product.brand ?? 'No brand specified'}
-        </div>
-      </td>
-
-      <td className="px-4 py-3 text-muted">
-        {product.packageQuantity} {unitLabel}
-      </td>
-
-      {showActions && (
+    <>
+      <tr
+        hidden={hidden}
+        {...getExpandableTableRowProps({
+          disabled: isDisabled,
+          isExpanded,
+          onToggle: onProductToggle,
+        })}
+      >
         <td className="px-4 py-3">
-          <div className="flex justify-end gap-2">
-            {onEdit && (
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={isDeleting}
-                aria-label={`Edit ${product.productName}`}
-                onClick={() => onEdit(product)}
-              >
-                Edit
-              </Button>
-            )}
-
-            {onViewPrices && (
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={isDeleting}
-                onClick={() => onViewPrices(product)}
-                aria-label={`View prices for ${product.productName}`}
-              >
-                Prices
-              </Button>
-            )}
-
-            {onDelete && (
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={isDeleting}
-                aria-label={`Delete ${product.productName}`}
-                onClick={() => void handleDelete()}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </Button>
-            )}
-          </div>
-
-          {deleteError && (
-            <p role="alert" className="mt-2 text-sm text-red-700">
-              {deleteError}
-            </p>
-          )}
+          <ExpandableRowToggleButton
+            isExpanded={isExpanded}
+            panelId={panelId}
+            label={`details for ${product.productName}`}
+            disabled={isDisabled}
+            onToggle={onProductToggle}
+          >
+            <span>
+              <span className="block font-medium text-text">
+                {product.productName}
+              </span>
+              <span className="block text-sm text-muted">
+                {product.brand ?? 'No brand specified'}
+              </span>
+            </span>
+          </ExpandableRowToggleButton>
         </td>
-      )}
-    </tr>
+
+        <td className="px-4 py-3 text-muted">
+          {product.packageQuantity} {unitLabel}
+        </td>
+
+        <td className="px-4 py-3 text-muted">
+          <dd className="text-muted">{product.upc ?? 'Not provided'}</dd>
+        </td>
+
+        {showActions && (
+          <td className="px-4 py-3">
+            <div className="flex items-center justify-end gap-3">
+              {onEdit && (
+                <Button
+                  type="button"
+                  variant="plain"
+                  className="inline-flex min-h-9 items-center justify-center rounded-md px-2 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-slate-100 hover:text-text"
+                  disabled={isDeleting}
+                  aria-label={`Edit ${product.productName}`}
+                  onClick={() => onEdit(product)}
+                >
+                  Edit
+                </Button>
+              )}
+
+              {onDelete && (
+                <div className={onEdit ? 'border-l border-border pl-3' : ''}>
+                  <DeleteButton
+                    itemName={product.productName}
+                    disabled={isDeleting}
+                    onDelete={handleDelete}
+                  />
+                </div>
+              )}
+            </div>
+          </td>
+        )}
+      </tr>
+    </>
   );
 }

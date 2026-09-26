@@ -1,16 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/Button.tsx';
+import DeleteButton from '../../../components/DeleteButton';
 import type { Ingredient } from '../types.ts';
 
 type IngredientRowProps = {
   ingredient: Ingredient;
   showActions: boolean;
-  isExpanded: boolean;
-  panelId: string;
   hidden?: boolean;
   disabled?: boolean;
   productCountLabel: string;
-  onToggle: () => void;
+  showAddProductHint?: boolean;
   onEdit?: (ingredient: Ingredient) => void;
   onDelete?: (id: string) => Promise<void>;
 };
@@ -18,19 +18,19 @@ type IngredientRowProps = {
 export default function IngredientRow({
   ingredient,
   showActions,
-  isExpanded,
-  panelId,
   productCountLabel,
+  showAddProductHint = false,
   hidden = false,
   disabled = false,
-  onToggle,
   onEdit,
   onDelete,
 }: IngredientRowProps) {
+  const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
+  const isDisabled = disabled || isDeleting;
 
   const handleDelete = async () => {
-    if (!onDelete) return;
+    if (!onDelete || disabled || isDeleting) return;
 
     setIsDeleting(true);
 
@@ -42,19 +42,39 @@ export default function IngredientRow({
   };
 
   return (
-    <tr hidden={hidden} className="border-t border-border">
+    <tr
+      hidden={hidden}
+      onClick={(event) => {
+        if (
+          isDisabled ||
+          event.defaultPrevented ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey ||
+          (event.target instanceof Element &&
+            event.target.closest('button, a, input, select, textarea, dialog'))
+        ) {
+          return;
+        }
+
+        navigate(`/ingredients/${ingredient.ingredientId}`);
+      }}
+      className={`border-t border-border transition-colors ${
+        isDisabled
+          ? ''
+          : 'cursor-pointer hover:bg-green-50 focus-within:bg-green-50'
+      }`}
+    >
       <td className="px-4 py-3">
         <Button
-          type="button"
+          to={`/ingredients/${ingredient.ingredientId}`}
           variant="plain"
-          aria-expanded={isExpanded}
-          aria-controls={panelId}
-          disabled={disabled || isDeleting}
-          onClick={onToggle}
-          className="inline-flex items-center gap-2 rounded text-left font-medium text-text"
+          disabled={isDisabled}
+          className="inline-flex min-h-9 items-center gap-2 rounded text-left font-medium text-primary hover:underline"
         >
-          <span aria-hidden="true">{isExpanded ? '▾' : '▸'}</span>
           {ingredient.name}
+          <span aria-hidden="true">→</span>
         </Button>
       </td>
       <td className="px-4 py-3">
@@ -62,15 +82,22 @@ export default function IngredientRow({
           {ingredient.category?.name ?? '-'}
         </div>
       </td>
-      <td className="px-4 py-3 text-muted">{productCountLabel}</td>
+      <td className="px-4 py-3 text-muted">
+        {productCountLabel}
+        {showAddProductHint && !isDisabled && (
+          <span className="mt-0.5 block text-sm text-muted">
+            Open to add a product
+          </span>
+        )}
+      </td>
       {showActions && (
         <td className="w-px whitespace-nowrap px-4 py-3">
-          <div className="flex justify-end gap-2">
+          <div className="flex items-center justify-end gap-3">
             {onEdit && (
               <Button
                 type="button"
-                variant="secondary"
-                className="px-3 py-2 text-sm"
+                variant="plain"
+                className="inline-flex min-h-9 items-center justify-center rounded-md px-2 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-slate-100 hover:text-text"
                 aria-label={`Edit ${ingredient.name}`}
                 disabled={disabled || isDeleting}
                 onClick={() => onEdit(ingredient)}
@@ -79,15 +106,13 @@ export default function IngredientRow({
               </Button>
             )}
             {onDelete && (
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={disabled || isDeleting}
-                aria-label={`Delete ${ingredient.name}`}
-                onClick={handleDelete}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </Button>
+              <div className={onEdit ? 'border-l border-border pl-3' : ''}>
+                <DeleteButton
+                  itemName={ingredient.name}
+                  disabled={disabled || isDeleting}
+                  onDelete={handleDelete}
+                />
+              </div>
             )}
           </div>
         </td>

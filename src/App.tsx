@@ -1,9 +1,9 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import IngredientsPage from './features/ingredients/pages/IngredientsPage';
-import Recipes from './pages/Recipes';
+import IngredientDetailsPage from './features/ingredients/pages/IngredientDetailsPage';
 import LoginPage from './features/users/pages/LoginPage';
 import RequireAuth from './features/users/components/RequireAuth';
 import RegisterPage from './features/users/pages/RegistrationPage';
@@ -27,15 +27,15 @@ export default function App() {
               <RequireAuth>
                 <IngredientsProvider>
                   <ProductProvider>
-                    <IngredientsPage />
+                    <Outlet />
                   </ProductProvider>
                 </IngredientsProvider>
               </RequireAuth>
             }
-          />
-          <Route path="/recipes" element={<Recipes />} />
-          {/* Fallback route for undefined URLs */}
-          <Route path="*" element={<Home />} />
+          >
+            <Route index element={<IngredientsPage />} />
+            <Route path=":ingredientId" element={<IngredientDetailsPage />} />
+          </Route>
         </Routes>
       </Container>
       <Footer />

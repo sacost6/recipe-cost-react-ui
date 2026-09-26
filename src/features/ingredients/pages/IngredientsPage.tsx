@@ -3,6 +3,7 @@ import Button from '../../../components/Button';
 import IngredientList from '../components/IngredientList';
 import { useIngredientContext } from '../IngredientsContext';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import IngredientForm from '../components/IngredientForm';
 import type {
   IngredientCategory,
@@ -32,10 +33,6 @@ export default function IngredientsPage() {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(
     null,
   );
-  const [expandingIngredientId, setExpandedIngredientId] = useState<
-    string | null
-  >(null);
-
   useEffect(() => {
     let ignore = false;
 
@@ -71,13 +68,13 @@ export default function IngredientsPage() {
 
   function handleAdd() {
     setEditingIngredient(null);
-    setExpandedIngredientId(null);
+
     setShowIngredientForm(true);
   }
 
   function handleEdit(ingredient: Ingredient) {
     setEditingIngredient(ingredient);
-    setExpandedIngredientId(null);
+
     setShowIngredientForm(true);
   }
 
@@ -86,13 +83,7 @@ export default function IngredientsPage() {
     setEditingIngredient(null);
   }
 
-  function handleToggle(ingredientId: string) {
-    if (showIngredientForm || isLoading) return;
-
-    setExpandedIngredientId((current) =>
-      current === ingredientId ? null : ingredientId,
-    );
-  }
+  const navigate = useNavigate();
 
   async function handleSubmit(input: CreateIngredientInput): Promise<void> {
     const saved = editingIngredient
@@ -103,33 +94,23 @@ export default function IngredientsPage() {
       : await addIngredient(input);
 
     closeIngredientForm();
-    setSearch('');
-    setCategoryFilter('');
-    setExpandedIngredientId(saved.ingredientId);
-    setEditingIngredient(null);
+    navigate(`/ingredients/${saved.ingredientId}`);
   }
 
   async function handleDelete(ingredientId: string): Promise<void> {
-    try {
-      await deleteIngredient(ingredientId);
-      setExpandedIngredientId((current) =>
-        current === ingredientId ? null : current,
-      );
-    } catch {
-      // IngredientProvider already sets the error displayed on this page.
-    }
+    await deleteIngredient(ingredientId);
   }
 
   const categoriesReady = !isLoadingCategories && categoryError === null;
   const showList = ingredients.length > 0 || (!isLoading && error === null);
 
   return (
-    <main className="space-y-8 py-6">
+    <main className="w-full min-w-0 max-w-full space-y-8 py-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-text">Ingredients</h1>
           <p className="text-sm text-muted">
-            Expand an ingredient to manage its products and purchase prices
+            Open an ingredient to manage its products and purchase prices.
           </p>
         </div>
 
@@ -204,8 +185,8 @@ export default function IngredientsPage() {
         </section>
       )}
 
-      <div className="flex flex-wrap gap-4">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="w-full min-w-0 sm:flex-1">
           <label
             htmlFor="ingredient-search"
             className="block text-sm font-medium"
@@ -218,11 +199,11 @@ export default function IngredientsPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by name"
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-input-border bg-surface px-3 py-2 placeholder:text-muted"
           />
         </div>
 
-        <div>
+        <div className="w-full min-w-0 sm:w-56 sm:shrink-0">
           <label
             htmlFor="ingredient-category-filter"
             className="block text-sm font-medium"
@@ -234,7 +215,7 @@ export default function IngredientsPage() {
             value={categoryFilter}
             onChange={(event) => setCategoryFilter(event.target.value)}
             disabled={!categoriesReady}
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-input-border bg-surface px-3 py-2"
           >
             <option value="">All categories</option>
             {categories.map((category) => (
@@ -258,8 +239,6 @@ export default function IngredientsPage() {
       {showList && (
         <IngredientList
           ingredients={ingredients}
-          expandedIngredientId={expandingIngredientId}
-          onToggle={handleToggle}
           search={search}
           categoryFilter={categoryFilter}
           disabled={showIngredientForm || isLoading}

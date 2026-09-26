@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import Button from '../../../components/Button';
 import type { Ingredient } from '../types';
 import { useProductContext } from '../../products/ProductContext';
@@ -12,10 +12,7 @@ import CreateProductPanel from '../../products/components/CreateProductPane';
 import ProductPricesPane from '../../products/components/ProductPricesPane';
 
 type ProductAction =
-  | null
-  | { type: 'create' }
-  | { type: 'edit'; product: Product }
-  | { type: 'prices'; productId: string };
+  null | { type: 'create' } | { type: 'edit'; product: Product };
 
 interface IngredientProductsPaneProps {
   ingredient: Ingredient;
@@ -24,6 +21,7 @@ interface IngredientProductsPaneProps {
 export default function IngredientProductsPane({
   ingredient,
 }: IngredientProductsPaneProps) {
+  const headingId = useId();
   const {
     products,
     units,
@@ -37,28 +35,46 @@ export default function IngredientProductsPane({
   const [action, setAction] = useState<ProductAction>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const [expandingProductId, setExpandingProductId] = useState<string | null>(
+    null,
+  );
+
+  const showProductForm = action?.type === 'create' || action?.type === 'edit';
+
+  useEffect(() => {
+    if (!message) return;
+
+    const timeoutId = window.setTimeout(() => setMessage(null), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [message]);
+
   const ingredientProducts = products.filter(
     (product) => product.ingredientId === ingredient.ingredientId,
   );
 
-  const priceProduct =
-    action?.type === 'prices'
-      ? ingredientProducts.find(
-          (product) => product.productId === action.productId,
-        )
-      : undefined;
-
+  const priceProduct = ingredientProducts.find(
+    (product) => product.productId === expandingProductId,
+  );
   const canStartAction = action === null && !isLoading && error === null;
 
   function openAction(next: ProductAction): void {
     setMessage(null);
+    setExpandingProductId(null);
     setAction(next);
+  }
+
+  async function handleDelete(productId: string): Promise<void> {
+    setMessage(null);
+    setExpandingProductId(null);
+    await deleteProduct(productId);
   }
 
   async function handleUpdate(input: CreateProductInput): Promise<void> {
     if (action?.type !== 'edit') {
       throw new Error('Select a product to edit.');
     }
+
+    setExpandingProductId(null);
 
     await updateProduct(action.product.productId, {
       ...input,
@@ -70,12 +86,19 @@ export default function IngredientProductsPane({
     setMessage('Product updated.');
   }
 
+  function handleProductToggle(productId: string) {
+    if (showProductForm || isLoading || error !== null) return;
+
+    setExpandingProductId((current) =>
+      current === productId ? null : productId,
+    );
+  }
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <h3 className="font-semibold text-text">
-          Your products for {ingredient.name}
-        </h3>
+    <section className="space-y-4" aria-labelledby={headingId}>
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 id={headingId} className="mb-0 text-base font-semibold text-text">
+          Your Products for {ingredient.name}
+        </h2>
 
         <Button
           type="button"
@@ -101,22 +124,16 @@ export default function IngredientProductsPane({
         units={units}
         isLoading={isLoading}
         error={error}
+        disabled={showProductForm || isLoading || error !== null}
+        expandedProductId={expandingProductId}
         onRetry={refreshProducts}
         onEdit={
           canStartAction
             ? (product) => openAction({ type: 'edit', product })
             : undefined
         }
-        onDelete={canStartAction ? deleteProduct : undefined}
-        onViewPrices={
-          canStartAction
-            ? (product) =>
-                openAction({
-                  type: 'prices',
-                  productId: product.productId,
-                })
-            : undefined
-        }
+        onDelete={canStartAction ? handleDelete : undefined}
+        onProductToggle={handleProductToggle}
       />
 
       {action?.type === 'create' && (
@@ -143,19 +160,18 @@ export default function IngredientProductsPane({
         />
       )}
 
-      {action?.type === 'prices' &&
-        (priceProduct ? (
+      {priceProduct && !showProductForm && (
+        <div
+          id={`product-details-${priceProduct.productId}`}
+          className="w-full min-w-0"
+        >
           <ProductPricesPane
             key={priceProduct.productId}
             product={priceProduct}
-            onClose={() => setAction(null)}
+            onClose={() => setExpandingProductId(null)}
           />
-        ) : (
-          <div className="space-y-2">
-            <p>This product is no longer available.</p>
-            <Button onClick={() => setAction(null)}>Back to products</Button>
-          </div>
-        ))}
+        </div>
+      )}
     </section>
   );
 }

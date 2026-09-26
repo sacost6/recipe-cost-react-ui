@@ -1,15 +1,11 @@
-import { Fragment } from 'react';
 import type { Ingredient } from '../types';
 import IngredientRow from './IngredientRow';
 import IngredientEmptyState from './IngredientEmptyState';
-import IngredientProductsPane from './IngredientProductsPane';
 import { useAuth } from '../../users/AuthContext';
 import { useProductContext } from '../../products/ProductContext';
 
 interface IngredientListProps {
   ingredients: Ingredient[];
-  expandedIngredientId: string | null;
-  onToggle: (ingredientId: string) => void;
   search: string;
   categoryFilter: string;
   disabled?: boolean;
@@ -19,8 +15,6 @@ interface IngredientListProps {
 
 export default function IngredientList({
   ingredients,
-  expandedIngredientId,
-  onToggle,
   search,
   categoryFilter,
   disabled = false,
@@ -52,16 +46,20 @@ export default function IngredientList({
 
   const visibleCount = ingredients.filter(matchesFilters).length;
   const showActions = Boolean(onEdit || onDelete);
-  const columnCount = showActions ? 4 : 3;
 
   if (ingredients.length === 0) {
     return <IngredientEmptyState />;
   }
 
   return (
-    <section aria-label="Ingredient list" className="space-y-3">
+    <section
+      aria-label="Ingredient list"
+      className="w-full min-w-0 max-w-full space-y-3"
+    >
       <p className="text-sm text-muted">
-        Showing {visibleCount} of {ingredients.length} ingredients
+        {visibleCount === 1
+          ? `Showing ${visibleCount} of ${ingredients.length} ingredient`
+          : `Showing ${visibleCount} of ${ingredients.length} ingredient`}
       </p>
 
       {visibleCount === 0 && (
@@ -72,7 +70,7 @@ export default function IngredientList({
 
       <div
         hidden={visibleCount === 0}
-        className="overflow-x-auto rounded-lg border border-border bg-surface"
+        className="w-full min-w-0 max-w-full overflow-x-auto"
       >
         <table className="min-w-full text-left text-sm">
           <thead className="bg-background text-xs uppercase text-muted">
@@ -84,7 +82,7 @@ export default function IngredientList({
                 Category
               </th>
               <th scope="col" className="px-4 py-3">
-                Your products
+                Your Products
               </th>
               {showActions && (
                 <th
@@ -100,8 +98,6 @@ export default function IngredientList({
           <tbody>
             {ingredients.map((ingredient) => {
               const id = ingredient.ingredientId;
-              const panelId = `ingredient-products-${id}`;
-              const isExpanded = expandedIngredientId === id;
               const isVisible = matchesFilters(ingredient);
 
               const canManage =
@@ -114,29 +110,22 @@ export default function IngredientList({
                   : String(productCounts.get(id) ?? 0);
 
               return (
-                <Fragment key={id}>
-                  <IngredientRow
-                    ingredient={ingredient}
-                    showActions={showActions}
-                    isExpanded={isExpanded}
-                    panelId={panelId}
-                    productCountLabel={productCountLabel}
-                    hidden={!isVisible}
-                    disabled={disabled}
-                    onToggle={() => onToggle(id)}
-                    onEdit={canManage ? onEdit : undefined}
-                    onDelete={canManage ? onDelete : undefined}
-                  />
-
-                  <tr id={panelId} hidden={!isVisible || !isExpanded}>
-                    <td
-                      colSpan={columnCount}
-                      className="border-t border-border bg-background p-4"
-                    >
-                      <IngredientProductsPane ingredient={ingredient} />
-                    </td>
-                  </tr>
-                </Fragment>
+                <IngredientRow
+                  key={id}
+                  ingredient={ingredient}
+                  showActions={showActions}
+                  productCountLabel={productCountLabel}
+                  showAddProductHint={
+                    user !== null &&
+                    !isLoading &&
+                    error === null &&
+                    (productCounts.get(id) ?? 0) === 0
+                  }
+                  hidden={!isVisible}
+                  disabled={disabled}
+                  onEdit={canManage ? onEdit : undefined}
+                  onDelete={canManage ? onDelete : undefined}
+                />
               );
             })}
           </tbody>
