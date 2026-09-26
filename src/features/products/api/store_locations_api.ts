@@ -3,6 +3,7 @@ import { endpoints } from '../../../lib/endpoints';
 import type {
   StoreLocation,
   CreateStoreLocationInput,
+  Retailer,
 } from '../types/storeLocationTypes';
 
 export function listStoreLocations(): Promise<StoreLocation[]> {
@@ -24,4 +25,8 @@ export function createStoreLocation(
     method: 'POST',
     body: JSON.stringify(input),
   });
+}
+
+export function listRetailers(): Promise<Retailer[]> {
+  return apiRequest<Retailer[]>(endpoints.retailers.list);
 }

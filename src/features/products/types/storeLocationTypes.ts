@@ -13,10 +13,12 @@ export interface StoreLocation {
 export interface CreateStoreLocationInput {
   retailerId: string;
   storeNumber?: string | null;
-  addressLine1: string;
-  addressLine2?: string | null;
+  streetName: string;
   city: string;
-  stateCode: string;
-  postalCode: string;
-  countryCode: string;
+}
+
+export interface Retailer {
+  retailerId: string;
+  name: string;
+  websiteUrl: string | null;
 }

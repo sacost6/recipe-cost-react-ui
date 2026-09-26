@@ -1,23 +1,11 @@
 import { useId } from 'react';
 import type { ProductPrice } from '../types/productPriceTypes';
 import type { StoreLocation } from '../types/storeLocationTypes';
+import ProductPriceRow from './ProductPriceRow';
 
 interface ProductPriceListProps {
   prices: ProductPrice[];
   stores: StoreLocation[];
-}
-
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-});
-
-function formatPrice(observation: ProductPrice): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: observation.currencyCode,
-    currencyDisplay: 'code',
-  }).format(Number(observation.price));
 }
 
 export default function ProductPriceList({
@@ -25,25 +13,37 @@ export default function ProductPriceList({
   stores,
 }: ProductPriceListProps) {
   const headingId = useId();
+  const sortedPrices = [...prices].sort(
+    (first, second) =>
+      new Date(second.recordedAt).getTime() -
+      new Date(first.recordedAt).getTime(),
+  );
 
   const storesById = new Map(
     stores.map((store) => [store.storeLocationId, store]),
   );
 
   return (
-    <section aria-labelledby={headingId} className="space-y-3">
-      <h3 id={headingId} className="font-semibold text-text">
-        Price history
-      </h3>
+    <section
+      aria-labelledby={headingId}
+      className="w-full min-w-0 max-w-full space-y-3"
+    >
+      <div>
+        <h3 id={headingId} className="font-semibold text-text">
+          Price history
+        </h3>
+        {prices.length > 0 && (
+          <p className="text-sm text-muted">Newest observations first.</p>
+        )}
+      </div>
 
       {prices.length === 0 ? (
         <p className="text-sm text-muted">No prices recorded yet.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="min-w-full text-left text-sm">
+        <div className="w-full min-w-0 max-w-full overflow-x-auto rounded-lg border border-border">
+          <table className="w-full min-w-[32rem] text-left text-sm">
             <caption className="sr-only">
-              {' '}
-              record package prices by store and date
+              Recorded package prices by store and date, newest first
             </caption>
 
             <thead className="bg-background text-xs uppercase text-muted">
@@ -61,49 +61,14 @@ export default function ProductPriceList({
             </thead>
 
             <tbody>
-              {prices.map((observation) => {
-                const store = storesById.get(observation.storeLocationId);
-
-                return (
-                  <tr
-                    key={observation.priceId}
-                    className="border-t border-border"
-                  >
-                    <td className="px-4 py-3 font-medium text-text">
-                      {formatPrice(observation)}
-                    </td>
-
-                    <td className="px-4 py-3 text-muted">
-                      {store ? (
-                        <>
-                          <div>
-                            {store.addressLine1}
-                            {store.addressLine2
-                              ? `, ${store.addressLine2}`
-                              : ''}
-                          </div>
-
-                          <div>
-                            {store.city}, {store.stateCode} {store.postalCode}
-                          </div>
-
-                          {store.storeNumber && (
-                            <div>Store {store.storeNumber}</div>
-                          )}
-                        </>
-                      ) : (
-                        'Store location unavailable'
-                      )}
-                    </td>
-
-                    <td className="px-4 py-3 text-muted">
-                      <time dateTime={observation.recordedAt}>
-                        {dateFormatter.format(new Date(observation.recordedAt))}
-                      </time>
-                    </td>
-                  </tr>
-                );
-              })}
+              {sortedPrices.map((price, index) => (
+                <ProductPriceRow
+                  key={price.priceId}
+                  price={price}
+                  store={storesById.get(price.storeLocationId)}
+                  isLatest={index === 0}
+                />
+              ))}
             </tbody>
           </table>
         </div>

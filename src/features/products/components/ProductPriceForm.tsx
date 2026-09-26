@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { SubmitEvent } from 'react';
 import Button from '../../../components/Button';
 import type { CreateProductPriceInput } from '../types/productPriceTypes';
@@ -8,15 +8,21 @@ import { inputClassName } from '../utils/classNames';
 interface ProductPriceFormProps {
   productId: string;
   stores: StoreLocation[];
+  title?: string;
   onSubmit: (input: CreateProductPriceInput) => Promise<void>;
+  onCancel?: () => void;
 }
 
 export default function ProductPriceForm({
   productId,
   stores,
+  title = 'Add price',
   onSubmit,
+  onCancel,
 }: ProductPriceFormProps) {
+  const headingId = useId();
   const [price, setPrice] = useState('');
+  const [currencyCode, setCurrencyCode] = useState('USD');
   const [selectedStoreLocationId, setSelectedStoreLocationId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -48,6 +54,12 @@ export default function ProductPriceForm({
     }
 
     const trimmedPrice = price.trim();
+    const normalizedCurrencyCode = currencyCode.trim().toUpperCase();
+
+    if (!/^[A-Z]{3}$/.test(normalizedCurrencyCode)) {
+      setFormError('Enter a three-letter currency code, such as USD or CAD.');
+      return;
+    }
 
     // check if the price matches backend's nonnegative decimal format
     if (!/^\d{1,10}(?:\.\d{1,2})?$/.test(trimmedPrice)) {
@@ -65,7 +77,7 @@ export default function ProductPriceForm({
         productId,
         storeLocationId: selectedStore.storeLocationId,
         price: trimmedPrice,
-        currencyCode: 'USD',
+        currencyCode: normalizedCurrencyCode,
       });
 
       resetForm();
@@ -81,9 +93,12 @@ export default function ProductPriceForm({
   return (
     <form
       onSubmit={handleSubmit}
+      aria-labelledby={headingId}
       className="space-y-4 rounded-lg border border-border p-4"
     >
-      <h3 className="font-semibold text-text">Record a price</h3>
+      <h3 id={headingId} className="font-semibold text-text">
+        {title}
+      </h3>
 
       {stores.length === 0 && (
         <p role="status" className="text-sm text-muted">
@@ -124,13 +139,35 @@ export default function ProductPriceForm({
             maxLength={13}
             placeholder="0.00"
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={(event) =>
+              setPrice(event.target.value.replace(/\$/g, ''))
+            }
             className={inputClassName}
           />
         </label>
 
+        <label className="block">
+          <span className="mb-1 block text-sm text-text">Currency</span>
+          <input
+            required
+            type="text"
+            minLength={3}
+            maxLength={3}
+            pattern="[A-Za-z]{3}"
+            placeholder="USD"
+            value={currencyCode}
+            onChange={(event) =>
+              setCurrencyCode(event.target.value.toUpperCase())
+            }
+            className={inputClassName}
+          />
+          <span className="mt-1 block text-sm text-muted">
+            For example, USD for US dollars or CAD for Canadian dollars.
+          </span>
+        </label>
+
         <p className="text-sm text-muted">
-          Enter the price of one whole package, without a dollar sign.
+          Enter the price of one whole package, without a currency symbol.
         </p>
       </fieldset>
 
@@ -140,9 +177,19 @@ export default function ProductPriceForm({
         </p>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-3">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        )}
         <Button type="submit" disabled={disabled}>
-          {isSubmitting ? 'Saving...' : 'Record price'}
+          {isSubmitting ? 'Saving...' : 'Save price'}
         </Button>
       </div>
     </form>

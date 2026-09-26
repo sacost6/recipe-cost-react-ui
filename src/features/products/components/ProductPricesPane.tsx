@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Button from '../../../components/Button';
 import {
   createProductPrice,
@@ -13,6 +13,8 @@ import type {
 import type { StoreLocation } from '../types/storeLocationTypes';
 import ProductPriceForm from './ProductPriceForm';
 import ProductPriceList from './ProductPriceList';
+import StoreLocationForm from './StoreLocationForm';
+import { useProductContext } from '../ProductContext';
 
 interface ProductPricesPaneProps {
   product: Product;
@@ -24,7 +26,13 @@ export default function ProductPricesPane({
   onClose,
 }: ProductPricesPaneProps) {
   const headingId = useId();
+  const formId = useId();
   const { productId } = product;
+  const { units } = useProductContext();
+  const unit = units.find((item) => item.unitId === product.packageUnitId);
+  const productLabel = product.brand
+    ? `${product.brand} ${product.productName}`
+    : product.productName;
 
   const [prices, setPrices] = useState<ProductPrice[]>([]);
   const [stores, setStores] = useState<StoreLocation[]>([]);
@@ -33,6 +41,28 @@ export default function ProductPricesPane({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [activeForm, setActiveForm] = useState<'price' | 'store' | null>(null);
+  const addPriceRef = useRef<HTMLButtonElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const previousForm = useRef(activeForm);
+
+  useEffect(() => {
+    if (activeForm) {
+      formRef.current?.focus({ preventScroll: true });
+      formRef.current?.scrollIntoView({ block: 'nearest' });
+    } else if (previousForm.current) {
+      addPriceRef.current?.focus({ preventScroll: true });
+    }
+
+    previousForm.current = activeForm;
+  }, [activeForm]);
+
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timeoutId = window.setTimeout(() => setSuccessMessage(null), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
 
   useEffect(() => {
     let ignore = false;
@@ -85,6 +115,7 @@ export default function ProductPricesPane({
     });
 
     setPrices((current) => [saved, ...current]);
+    setActiveForm(null);
     setSuccessMessage('Price recorded.');
   }
 
@@ -93,20 +124,47 @@ export default function ProductPricesPane({
       aria-labelledby={headingId}
       className="space-y-4 rounded-xl border border-border bg-surface p-6"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 id={headingId} className="text-lg font-semibold text-text">
-            Prices for {product.productName}
+            Prices for {productLabel}
           </h2>
 
           <p className="text-sm text-muted">
-            Record the price of one whole package at a store.
+            Package: {product.packageQuantity}{' '}
+            {unit?.abbreviation ?? 'unknown unit'}
           </p>
         </div>
 
-        <Button type="button" variant="secondary" onClick={onClose}>
-          Close
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            ref={addPriceRef}
+            type="button"
+            disabled={isLoading || loadError !== null || activeForm !== null}
+            aria-expanded={activeForm === 'price'}
+            aria-controls={formId}
+            onClick={() => {
+              setSuccessMessage(null);
+              setActiveForm('price');
+            }}
+          >
+            Add price
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isLoading || loadError !== null || activeForm !== null}
+            onClick={() => {
+              setSuccessMessage(null);
+              setActiveForm('store');
+            }}
+          >
+            Add store location
+          </Button>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -131,19 +189,62 @@ export default function ProductPricesPane({
             </p>
           )}
 
-          {stores.length === 0 ? (
-            <p className="text-sm text-muted">
-              Add a store location before recording a price.
-            </p>
-          ) : (
-            <ProductPriceForm
-              productId={productId}
-              stores={stores}
-              onSubmit={handleSubmit}
-            />
-          )}
-
           <ProductPriceList prices={prices} stores={stores} />
+
+          <div
+            id={formId}
+            ref={formRef}
+            hidden={activeForm === null}
+            tabIndex={-1}
+            role="region"
+            aria-label={
+              activeForm === 'store'
+                ? 'Add store location'
+                : `Add price for ${productLabel}`
+            }
+            className="scroll-mt-24 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {activeForm === 'store' && (
+              <StoreLocationForm
+                onCreated={(location) => {
+                  setStores((current) => [location, ...current]);
+                  setActiveForm('price');
+                }}
+                onCancel={() => setActiveForm(null)}
+              />
+            )}
+
+            {activeForm === 'price' &&
+              (stores.length === 0 ? (
+                <div className="space-y-3 rounded-lg border border-border p-4">
+                  <h3 className="font-semibold text-text">
+                    Add price for {productLabel}
+                  </h3>
+                  <p className="text-sm text-muted">
+                    Add a store location to record where you found this price.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => setActiveForm('store')}>
+                      Add store location
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setActiveForm(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <ProductPriceForm
+                  productId={productId}
+                  title={`Add price for ${productLabel}`}
+                  stores={stores}
+                  onSubmit={handleSubmit}
+                  onCancel={() => setActiveForm(null)}
+                />
+              ))}
+          </div>
         </>
       )}
     </section>
