@@ -1,12 +1,13 @@
 export interface StoreLocation {
   storeLocationId: string;
   retailerId: string;
+  retailer: { name: string };
   storeNumber: string | null;
   addressLine1: string;
   addressLine2: string | null;
   city: string;
-  stateCode: string;
-  postalCode: string;
+  stateCode: string | null;
+  postalCode: string | null;
   countryCode: string;
 }
 
@@ -15,6 +16,7 @@ export interface CreateStoreLocationInput {
   storeNumber?: string | null;
   streetName: string;
   city: string;
+  stateCode: string;
 }
 
 export interface Retailer {

@@ -42,13 +42,16 @@ export default function ProductPriceRow({
       <td className="px-4 py-3 text-muted">
         {store ? (
           <>
+            <div className="font-medium text-text">{store.retailer.name}</div>
             <div>
               {store.addressLine1}
               {store.addressLine2 ? `, ${store.addressLine2}` : ''}
             </div>
 
             <div>
-              {store.city}, {store.stateCode} {store.postalCode}
+              {store.city}
+              {store.stateCode ? `, ${store.stateCode}` : ''}
+              {store.postalCode ? ` ${store.postalCode}` : ''}
             </div>
 
             {store.storeNumber && <div>Store {store.storeNumber}</div>}

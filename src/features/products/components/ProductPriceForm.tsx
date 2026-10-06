@@ -122,7 +122,9 @@ export default function ProductPriceForm({
               <option key={store.storeLocationId} value={store.storeLocationId}>
                 {store.addressLine1}
                 {store.addressLine2 ? `, ${store.addressLine2}` : ''}
-                {`, ${store.city}, ${store.stateCode} ${store.postalCode}`}
+                {`, ${store.city}`}
+                {store.stateCode ? `, ${store.stateCode}` : ''}
+                {store.postalCode ? ` ${store.postalCode}` : ''}
                 {store.storeNumber ? ` — Store ${store.storeNumber}` : ''}
               </option>
             ))}
@@ -131,19 +133,24 @@ export default function ProductPriceForm({
 
         <label className="block">
           <span className="mb-1 block text-sm text-text">Package price</span>
-
-          <input
-            required
-            type="text"
-            inputMode="decimal"
-            maxLength={13}
-            placeholder="0.00"
-            value={price}
-            onChange={(event) =>
-              setPrice(event.target.value.replace(/\$/g, ''))
-            }
-            className={inputClassName}
-          />
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted"
+            >
+              $
+            </span>
+            <input
+              required
+              type="text"
+              inputMode="decimal"
+              maxLength={13}
+              placeholder="0.00"
+              value={price}
+              onChange={(event) => setPrice(event.target.value)}
+              className={`${inputClassName} pl-8`}
+            />
+          </div>
         </label>
 
         <label className="block">
@@ -167,7 +174,7 @@ export default function ProductPriceForm({
         </label>
 
         <p className="text-sm text-muted">
-          Enter the price of one whole package, without a currency symbol.
+          Enter the price of one whole package.
         </p>
       </fieldset>
 

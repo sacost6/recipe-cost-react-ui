@@ -9,6 +9,14 @@ import type {
 } from '../types/storeLocationTypes';
 import { inputClassName } from '../utils/classNames';
 
+const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+] as const;
+
 interface StoreLocationFormProps {
   onCreated: (location: StoreLocation) => void;
   onCancel: () => void;
@@ -20,9 +28,9 @@ export default function StoreLocationForm({
 }: StoreLocationFormProps) {
   const [retailers, setRetailers] = useState<Retailer[]>([]);
   const [selectedRetailerId, setSelectedRetailerId] = useState('');
-  const [storeNumber, setStoreNumber] = useState('');
   const [streetName, setStreetName] = useState('');
   const [city, setCity] = useState('');
+  const [stateCode, setStateCode] = useState('');
   const [isLoadingRetailers, setIsLoadingRetailers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -64,6 +72,7 @@ export default function StoreLocationForm({
       retailerId: selectedRetailerId,
       streetName: streetName.trim(),
       city: city.trim(),
+      stateCode,
     };
 
     try {
@@ -139,15 +148,21 @@ export default function StoreLocationForm({
           />
         </label>
 
-        <label className="block sm:col-span-2">
-          <span className="mb-1 block text-sm">Store number (optional)</span>
-          <input
-            maxLength={50}
-            value={storeNumber}
-            placeholder="1"
-            onChange={(event) => setStoreNumber(event.target.value)}
+        <label className="block">
+          <span className="mb-1 block text-sm">State</span>
+          <select
+            required
+            value={stateCode}
+            onChange={(event) => setStateCode(event.target.value)}
             className={inputClassName}
-          />
+          >
+            <option value="">Select a state</option>
+            {US_STATES.map((abbreviation) => (
+              <option key={abbreviation} value={abbreviation}>
+                {abbreviation}
+              </option>
+            ))}
+          </select>
         </label>
       </fieldset>
 
