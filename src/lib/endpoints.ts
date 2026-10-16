@@ -5,6 +5,7 @@ const CATEGORIES = '/api/categories';
 const UNITS = '/api/units';
 const STORE_LOCATIONS = '/api/store-locations';
 const RETAILERS = '/api/retailers';
+const RECIPES = '/api/recipes';
 export const endpoints = {
   products: {
     list: (query: string) => `${PRODUCTS}?${query}`,
@@ -20,9 +21,20 @@ export const endpoints = {
     detail: (ingredientId: string) =>
       `${INGREDIENTS}/${encodeURIComponent(ingredientId)}`,
   },
+  recipes: {
+    list: RECIPES,
+    create: RECIPES,
+    detail: (recipeId: string) => `${RECIPES}/${encodeURIComponent(recipeId)}`,
+    ingredients: (recipeId: string) =>
+      `${RECIPES}/${encodeURIComponent(recipeId)}/ingredients`,
+    ingredient: (recipeId: string, recipeIngredientId: string) =>
+      `${RECIPES}/${encodeURIComponent(recipeId)}/ingredients/${encodeURIComponent(recipeIngredientId)}`,
+  },
   storeLocations: {
     list: STORE_LOCATIONS,
     create: STORE_LOCATIONS,
+    krogerSearch: (query: string) =>
+      `${STORE_LOCATIONS}/kroger/search?${query}`,
     detail: (storeLocationId: string) =>
       `${STORE_LOCATIONS}/${encodeURIComponent(storeLocationId)}`,
   },

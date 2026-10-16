@@ -14,6 +14,7 @@ import type { StoreLocation } from '../types/storeLocationTypes';
 import ProductPriceForm from './ProductPriceForm';
 import ProductPriceList from './ProductPriceList';
 import StoreLocationForm from './StoreLocationForm';
+import KrogerStoreMappingForm from './KrogerStoreMappingForm';
 import { useProductContext } from '../ProductContext';
 
 interface ProductPricesPaneProps {
@@ -41,7 +42,10 @@ export default function ProductPricesPane({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [activeForm, setActiveForm] = useState<'price' | 'store' | null>(null);
+  const [activeForm, setActiveForm] = useState<
+    'price' | 'store' | 'map-store' | null
+  >(null);
+  const [mappingStore, setMappingStore] = useState<StoreLocation | null>(null);
   const addPriceRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const previousForm = useRef(activeForm);
@@ -191,6 +195,55 @@ export default function ProductPricesPane({
 
           <ProductPriceList prices={prices} stores={stores} />
 
+          {stores.length > 0 && (
+            <section
+              aria-label="Kroger price sync stores"
+              className="space-y-3"
+            >
+              <div>
+                <h3 className="font-semibold text-text">
+                  Kroger price sync stores
+                </h3>
+                <p className="text-sm text-muted">
+                  Map a store to a Kroger or affiliated-chain location ID to
+                  include it in price syncing.
+                </p>
+              </div>
+              <ul className="space-y-2">
+                {stores.map((store) => (
+                  <li
+                    key={store.storeLocationId}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  >
+                    <div className="text-sm">
+                      <p className="font-medium text-text">
+                        {store.retailer.name}: {store.addressLine1},{' '}
+                        {store.city}
+                        {store.stateCode ? `, ${store.stateCode}` : ''}
+                      </p>
+                      <p className="text-muted">
+                        {store.krogerLocationId
+                          ? `Mapped to Kroger location ${store.krogerLocationId}`
+                          : 'Not mapped'}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={activeForm !== null}
+                      onClick={() => {
+                        setMappingStore(store);
+                        setActiveForm('map-store');
+                      }}
+                    >
+                      {store.krogerLocationId ? 'Edit mapping' : 'Map store'}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           <div
             id={formId}
             ref={formRef}
@@ -200,7 +253,9 @@ export default function ProductPricesPane({
             aria-label={
               activeForm === 'store'
                 ? 'Add store location'
-                : `Add price for ${productLabel}`
+                : activeForm === 'map-store'
+                  ? 'Map Kroger store'
+                  : `Add price for ${productLabel}`
             }
             className="scroll-mt-24 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2"
           >
@@ -211,6 +266,28 @@ export default function ProductPricesPane({
                   setActiveForm('price');
                 }}
                 onCancel={() => setActiveForm(null)}
+              />
+            )}
+
+            {activeForm === 'map-store' && mappingStore && (
+              <KrogerStoreMappingForm
+                store={mappingStore}
+                onSaved={(updatedStore) => {
+                  setStores((current) =>
+                    current.map((store) =>
+                      store.storeLocationId === updatedStore.storeLocationId
+                        ? updatedStore
+                        : store,
+                    ),
+                  );
+                  setMappingStore(null);
+                  setActiveForm(null);
+                  setSuccessMessage('Kroger store mapping saved.');
+                }}
+                onCancel={() => {
+                  setMappingStore(null);
+                  setActiveForm(null);
+                }}
               />
             )}
 

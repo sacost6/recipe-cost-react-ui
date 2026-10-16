@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import Button from '../../../components/Button';
 import { useRecipeContext } from '../RecipeContext';
+import RecipeInstructionsMarkdown from '../components/RecipeInstructionsMarkdown';
 import RecipeIngredientsPane from '../components/RecipeIngredientsPane';
 
 export default function RecipeDetailsPage() {
@@ -36,14 +37,39 @@ export default function RecipeDetailsPage() {
         </div>
       ) : (
         <>
-          <header>
+          <header className="space-y-2">
             <h1 className="text-3xl font-semibold text-text">{recipe.name}</h1>
             <p className="text-sm text-muted">
               {recipe.description ?? 'No description provided'}
             </p>
+            <p className="text-sm text-muted">
+              Makes {recipe.servings}{' '}
+              {recipe.servings === 1 ? 'serving' : 'servings'}
+            </p>
           </header>
 
           <RecipeIngredientsPane key={recipe.recipeId} recipe={recipe} />
+
+          <section
+            aria-labelledby="recipe-instructions-heading"
+            className="space-y-3 rounded-xl border border-border bg-surface p-6"
+          >
+            <h2
+              id="recipe-instructions-heading"
+              className="text-xl font-semibold text-text"
+            >
+              Instructions
+            </h2>
+            {recipe.instructions.trim() ? (
+              <RecipeInstructionsMarkdown>
+                {recipe.instructions}
+              </RecipeInstructionsMarkdown>
+            ) : (
+              <p className="text-sm leading-6 text-muted">
+                No instructions added yet.
+              </p>
+            )}
+          </section>
         </>
       )}
     </main>

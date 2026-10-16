@@ -4,10 +4,13 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import IngredientsPage from './features/ingredients/pages/IngredientsPage';
 import IngredientDetailsPage from './features/ingredients/pages/IngredientDetailsPage';
+import RecipePage from './features/recipes/pages/RecipePage';
+import RecipeDetailsPage from './features/recipes/pages/RecipeDetailsPage';
 import LoginPage from './features/users/pages/LoginPage';
 import RequireAuth from './features/users/components/RequireAuth';
 import RegisterPage from './features/users/pages/RegistrationPage';
 import { IngredientsProvider } from './features/ingredients/IngredientProvider';
+import { RecipeProvider } from './features/recipes/RecipeProvider';
 import { ProductProvider } from './features/products/ProductProvider';
 import Container from './components/Container';
 
@@ -35,6 +38,21 @@ export default function App() {
           >
             <Route index element={<IngredientsPage />} />
             <Route path=":ingredientId" element={<IngredientDetailsPage />} />
+          </Route>
+          <Route
+            path="/recipes"
+            element={
+              <RequireAuth>
+                <IngredientsProvider>
+                  <RecipeProvider>
+                    <Outlet />
+                  </RecipeProvider>
+                </IngredientsProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<RecipePage />} />
+            <Route path=":recipeId" element={<RecipeDetailsPage />} />
           </Route>
         </Routes>
       </Container>

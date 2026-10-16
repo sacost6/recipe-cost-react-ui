@@ -4,6 +4,8 @@ import type {
   StoreLocation,
   CreateStoreLocationInput,
   Retailer,
+  UpdateStoreLocationInput,
+  KrogerLocation,
 } from '../types/storeLocationTypes';
 
 export function listStoreLocations(): Promise<StoreLocation[]> {
@@ -25,6 +27,32 @@ export function createStoreLocation(
     method: 'POST',
     body: JSON.stringify(input),
   });
+}
+
+export function updateStoreLocation(
+  storeLocationId: string,
+  input: UpdateStoreLocationInput,
+): Promise<StoreLocation> {
+  return apiRequest<StoreLocation>(
+    endpoints.storeLocations.detail(storeLocationId),
+    {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function searchKrogerLocations(
+  zipCode: string,
+  radiusInMiles: number,
+): Promise<KrogerLocation[]> {
+  const query = new URLSearchParams({
+    zipCode,
+    radiusInMiles: String(radiusInMiles),
+  });
+  return apiRequest<KrogerLocation[]>(
+    endpoints.storeLocations.krogerSearch(query.toString()),
+  );
 }
 
 export function listRetailers(): Promise<Retailer[]> {
