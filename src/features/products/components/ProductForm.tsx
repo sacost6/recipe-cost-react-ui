@@ -35,9 +35,6 @@ export default function ProductForm({
     initialValues ? String(initialValues.packageUnitId) : '',
   );
   const [upc, setUpc] = useState(initialValues?.upc ?? '');
-  const [krogerSyncEnabled, setKrogerSyncEnabled] = useState(
-    initialValues?.krogerSyncEnabled ?? false,
-  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -50,7 +47,6 @@ export default function ProductForm({
     setPackageQuantity('');
     setSelectedUnitId('');
     setUpc('');
-    setKrogerSyncEnabled(false);
     setFormError(null);
   }
 
@@ -99,7 +95,6 @@ export default function ProductForm({
         packageQuantity: quantity,
         packageUnitId: selectedUnit.unitId,
         upc: upc.trim() || null,
-        krogerSyncEnabled: krogerSyncEnabled && Boolean(upc.trim()),
       });
 
       if (!initialValues) {
@@ -196,29 +191,9 @@ export default function ProductForm({
             maxLength={20}
             value={upc}
             placeholder="e.g. 012345678905"
-            onChange={(event) => {
-              const value = event.target.value;
-              setUpc(value);
-              if (!value.trim()) setKrogerSyncEnabled(false);
-            }}
+            onChange={(event) => setUpc(event.target.value)}
             className={inputClassName}
           />
-        </label>
-        <label className="flex items-start gap-2">
-          <input
-            type="checkbox"
-            checked={krogerSyncEnabled}
-            disabled={!upc.trim()}
-            onChange={(event) => setKrogerSyncEnabled(event.target.checked)}
-            className="mt-1"
-          />
-          <span className="text-sm">
-            Sync prices from Kroger
-            <span className="mt-1 block text-muted">
-              Enter a UPC to enable price syncing for this product. Kroger
-              credentials must also be configured.
-            </span>
-          </span>
         </label>
       </fieldset>
 

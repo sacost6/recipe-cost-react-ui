@@ -18,7 +18,6 @@ export interface CreateProductInput {
   productName: string;
   packageQuantity: string;
   upc: string | null;
-  krogerSyncEnabled: boolean;
 }
 
 export type UpdateProductInput = Partial<CreateProductInput> & {

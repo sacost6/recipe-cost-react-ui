@@ -18,8 +18,8 @@ const units: Unit[] = [
   },
 ];
 
-describe('ProductForm Kroger sync', () => {
-  it('requires a UPC and submits the opt-in setting', async () => {
+describe('ProductForm', () => {
+  it('submits product details and UPC without enabling price syncing', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 
@@ -32,10 +32,9 @@ describe('ProductForm Kroger sync', () => {
       />,
     );
 
-    const syncCheckbox = screen.getByRole('checkbox', {
-      name: /sync prices from kroger/i,
-    }) as HTMLInputElement;
-    expect(syncCheckbox.disabled).toBe(true);
+    expect(
+      screen.queryByRole('checkbox', { name: /sync prices from kroger/i }),
+    ).toBeNull();
 
     await user.type(
       screen.getByRole('textbox', { name: 'Product name' }),
@@ -51,22 +50,12 @@ describe('ProductForm Kroger sync', () => {
     );
     const upc = screen.getByRole('textbox', { name: 'UPC (optional)' });
     await user.type(upc, '012345678905');
-    expect(syncCheckbox.disabled).toBe(false);
-    await user.click(syncCheckbox);
-
-    await user.clear(upc);
-    expect(syncCheckbox.disabled).toBe(true);
-    expect(syncCheckbox.checked).toBe(false);
-
-    await user.type(upc, '012345678905');
-    await user.click(syncCheckbox);
     await user.click(screen.getByRole('button', { name: 'Save Product' }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           upc: '012345678905',
-          krogerSyncEnabled: true,
         }),
       );
     });
