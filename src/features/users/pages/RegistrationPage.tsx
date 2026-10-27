@@ -74,7 +74,7 @@ export default function RegisterPage() {
             type="password"
             autoComplete="new-password"
             required
-            minLength={15}
+            minLength={8}
             maxLength={128}
             value={password}
             onChange={(event) => setPassword(event.target.value)}

@@ -20,11 +20,19 @@ export const endpoints = {
     create: INGREDIENTS,
     detail: (ingredientId: string) =>
       `${INGREDIENTS}/${encodeURIComponent(ingredientId)}`,
+    density: (ingredientId: string) =>
+      `${INGREDIENTS}/${encodeURIComponent(ingredientId)}/density`,
+    densitySearch: (ingredientId: string) =>
+      `${INGREDIENTS}/${encodeURIComponent(ingredientId)}/density/usda/search`,
+    densitySuggestions: (ingredientId: string, fdcId: number) =>
+      `${INGREDIENTS}/${encodeURIComponent(ingredientId)}/density/usda/${fdcId}/suggestions`,
   },
   recipes: {
     list: RECIPES,
     create: RECIPES,
     detail: (recipeId: string) => `${RECIPES}/${encodeURIComponent(recipeId)}`,
+    pricing: (recipeId: string, storeLocationId: string) =>
+      `${RECIPES}/${encodeURIComponent(recipeId)}/pricing?${new URLSearchParams({ storeLocationId })}`,
     ingredients: (recipeId: string) =>
       `${RECIPES}/${encodeURIComponent(recipeId)}/ingredients`,
     ingredient: (recipeId: string, recipeIngredientId: string) =>

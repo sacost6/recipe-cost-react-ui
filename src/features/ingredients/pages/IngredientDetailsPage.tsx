@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import Button from '../../../components/Button';
 import { useIngredientContext } from '../IngredientsContext';
 import IngredientProductsPane from '../components/IngredientProductsPane';
+import IngredientDensityPane from '../components/IngredientDensityPane';
 
 export default function IngredientDetailsPage() {
   const { ingredientId } = useParams<{ ingredientId: string }>();
@@ -50,6 +51,11 @@ export default function IngredientDetailsPage() {
 
           <IngredientProductsPane
             key={ingredient.ingredientId}
+            ingredient={ingredient}
+          />
+
+          <IngredientDensityPane
+            key={`density-${ingredient.ingredientId}`}
             ingredient={ingredient}
           />
         </>

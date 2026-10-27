@@ -5,6 +5,7 @@ import type {
   CreateRecipeInput,
   Recipe,
   RecipeIngredient,
+  RecipePricing,
   UpdateRecipeIngredientInput,
   UpdateRecipeInput,
 } from './types';
@@ -77,5 +78,14 @@ export function deleteRecipeIngredient(
     {
       method: 'DELETE',
     },
+  );
+}
+
+export function getRecipePricing(
+  recipeId: Recipe['recipeId'],
+  storeLocationId: string,
+): Promise<RecipePricing> {
+  return apiRequest<RecipePricing>(
+    endpoints.recipes.pricing(recipeId, storeLocationId),
   );
 }

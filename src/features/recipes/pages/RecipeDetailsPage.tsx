@@ -3,6 +3,7 @@ import Button from '../../../components/Button';
 import { useRecipeContext } from '../RecipeContext';
 import RecipeInstructionsMarkdown from '../components/RecipeInstructionsMarkdown';
 import RecipeIngredientsPane from '../components/RecipeIngredientsPane';
+import RecipePricingPane from '../components/RecipePricingPane';
 
 export default function RecipeDetailsPage() {
   const { recipeId } = useParams<{ recipeId: string }>();
@@ -49,6 +50,11 @@ export default function RecipeDetailsPage() {
           </header>
 
           <RecipeIngredientsPane key={recipe.recipeId} recipe={recipe} />
+
+          <RecipePricingPane
+            key={`pricing-${recipe.recipeId}`}
+            recipe={recipe}
+          />
 
           <section
             aria-labelledby="recipe-instructions-heading"
