@@ -17,44 +17,50 @@ import {
   vi,
 } from 'vitest';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { IngredientContext } from '../ingredients/IngredientsContext';
-import type { IngredientContextType } from '../ingredients/IngredientsContext';
-import type { Ingredient } from '../ingredients/types';
-import { listUnits } from '../products/api/product_api';
-import type { Unit } from '../products/types/productTypes';
-import { RecipeContext } from './RecipeContext';
-import { useRecipeContext } from './RecipeContext';
-import type { RecipeContextType } from './RecipeContext';
-import { RecipeProvider } from './RecipeProvider';
+import { IngredientContext } from '../../ingredients/IngredientsContext';
+import type { IngredientContextType } from '../../ingredients/IngredientsContext';
+import type { Ingredient } from '../../ingredients/types';
+import { listUnits } from '../../products/api/product_api';
+import type { Unit } from '../../products/types/productTypes';
+import { RecipeContext } from '../RecipeContext';
+import { useRecipeContext } from '../RecipeContext';
+import type { RecipeContextType } from '../RecipeContext';
+import { RecipeProvider } from '../RecipeProvider';
 import {
   createRecipe,
   createRecipeIngredient,
   deleteRecipe,
   deleteRecipeIngredient,
+  getRecipePricing,
   listRecipeIngredients,
   listRecipes,
   updateRecipe,
   updateRecipeIngredient,
-} from './api';
-import RecipeIngredientsPane from './components/RecipeIngredientsPane';
-import RecipeList from './components/RecipeList';
-import RecipeDetailsPage from './pages/RecipeDetailsPage';
-import RecipePage from './pages/RecipePage';
-import type { Recipe, RecipeIngredient } from './types';
+} from '../api';
+import RecipeIngredientsPane from '../components/RecipeIngredientsPane';
+import RecipeList from '../components/RecipeList';
+import RecipeDetailsPage from '../pages/RecipeDetailsPage';
+import RecipePage from '../pages/RecipePage';
+import type { Recipe, RecipeIngredient } from '../types';
 
-vi.mock('./api', () => ({
+vi.mock('../api', () => ({
   createRecipe: vi.fn(),
   createRecipeIngredient: vi.fn(),
   deleteRecipe: vi.fn(),
   deleteRecipeIngredient: vi.fn(),
+  getRecipePricing: vi.fn(),
   listRecipeIngredients: vi.fn(),
   listRecipes: vi.fn(),
   updateRecipe: vi.fn(),
   updateRecipeIngredient: vi.fn(),
 }));
 
-vi.mock('../products/api/product_api', () => ({
+vi.mock('../../products/api/product_api', () => ({
   listUnits: vi.fn(),
+}));
+
+vi.mock('../../products/api/store_locations_api', () => ({
+  listStoreLocations: vi.fn().mockResolvedValue([]),
 }));
 
 const recipe: Recipe = {
@@ -262,7 +268,7 @@ afterEach(() => {
 });
 
 describe('recipe details and ingredient lines', () => {
-  it('shows recipe ingredients and instructions without cost calculations', async () => {
+  it('shows recipe details without automatically calculating costs', async () => {
     mockedListRecipeIngredients.mockResolvedValue([tomatoLine]);
     const markdownRecipe = {
       ...recipe,
@@ -293,7 +299,8 @@ describe('recipe details and ingredient lines', () => {
     expect(screen.getByRole('list').tagName).toBe('OL');
     expect(screen.getByText('Tip:').tagName).toBe('STRONG');
     expect(await screen.findByRole('row', { name: /Tomato/ })).toBeTruthy();
-    expect(screen.queryByText(/cost|\$/i)).toBeNull();
+    expect(screen.queryByText(/\$\d/)).toBeNull();
+    expect(getRecipePricing).not.toHaveBeenCalled();
   });
 
   it('loads recipe lines and presents quantity and unit in sort order', async () => {

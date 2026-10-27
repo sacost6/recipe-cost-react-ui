@@ -2,8 +2,12 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import ProductForm from './ProductForm';
-import type { Unit } from '../types/productTypes';
+import ProductForm from '../ProductForm';
+import type { Unit } from '../../types/productTypes';
+
+vi.mock('../../api/store_locations_api', () => ({
+  listStoreLocations: vi.fn().mockResolvedValue([]),
+}));
 
 afterEach(cleanup);
 
@@ -19,7 +23,7 @@ const units: Unit[] = [
 ];
 
 describe('ProductForm', () => {
-  it('submits product details and UPC without enabling price syncing', async () => {
+  it('submits product details and UPC without a selected Kroger price', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 
@@ -57,6 +61,7 @@ describe('ProductForm', () => {
         expect.objectContaining({
           upc: '012345678905',
         }),
+        undefined,
       );
     });
   });

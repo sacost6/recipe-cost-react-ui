@@ -2,11 +2,11 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { updateStoreLocation } from '../api/store_locations_api';
-import type { StoreLocation } from '../types/storeLocationTypes';
-import KrogerStoreMappingForm from './KrogerStoreMappingForm';
+import { updateStoreLocation } from '../../api/store_locations_api';
+import type { StoreLocation } from '../../types/storeLocationTypes';
+import KrogerStoreMappingForm from '../KrogerStoreMappingForm';
 
-vi.mock('../api/store_locations_api', () => ({
+vi.mock('../../api/store_locations_api', () => ({
   updateStoreLocation: vi.fn(),
 }));
 

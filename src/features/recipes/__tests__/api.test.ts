@@ -8,8 +8,8 @@ import {
   listRecipes,
   updateRecipe,
   updateRecipeIngredient,
-} from './api';
-import type { Recipe, RecipeIngredient } from './types';
+} from '../api';
+import type { Recipe, RecipeIngredient } from '../types';
 
 const recipe: Recipe = {
   recipeId: '42',

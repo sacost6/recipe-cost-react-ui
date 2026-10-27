@@ -6,14 +6,14 @@ import {
   createStoreLocation,
   listRetailers,
   searchKrogerLocations,
-} from '../api/store_locations_api';
+} from '../../api/store_locations_api';
 import type {
   KrogerLocation,
   StoreLocation,
-} from '../types/storeLocationTypes';
-import StoreLocationForm from './StoreLocationForm';
+} from '../../types/storeLocationTypes';
+import StoreLocationForm from '../StoreLocationForm';
 
-vi.mock('../api/store_locations_api', () => ({
+vi.mock('../../api/store_locations_api', () => ({
   createStoreLocation: vi.fn(),
   listRetailers: vi.fn(),
   searchKrogerLocations: vi.fn(),
