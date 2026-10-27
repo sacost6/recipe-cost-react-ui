@@ -37,6 +37,9 @@ export default function ProductPriceRow({
             Latest recorded price
           </span>
         )}
+        <span className="mt-1 block text-xs text-muted">
+          {price.source === 'kroger' ? 'From Kroger' : 'Entered manually'}
+        </span>
       </td>
 
       <td className="px-4 py-3 text-muted">

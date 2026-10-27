@@ -139,9 +139,11 @@ export default function IngredientProductsPane({
       {action?.type === 'create' && (
         <CreateProductPanel
           ingredientId={ingredient.ingredientId}
-          onCreated={(product) => {
+          onCreated={(product, priceMessage) => {
             setAction(null);
-            setMessage(`Added ${product.productName}.`);
+            setMessage(
+              `Added ${product.productName}.${priceMessage ? ` ${priceMessage}` : ''}`,
+            );
           }}
           onCancel={() => setAction(null)}
         />

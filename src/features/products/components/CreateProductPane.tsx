@@ -1,11 +1,16 @@
 import Button from '../../../components/Button';
 import ProductForm from './ProductForm';
 import { useProductContext } from '../ProductContext';
-import type { CreateProductInput, Product } from '../types/productTypes';
+import { createProductPrice } from '../api/product_price_api';
+import type {
+  CreateProductInput,
+  KrogerPriceSelection,
+  Product,
+} from '../types/productTypes';
 
 interface CreateProductPanelProps {
   ingredientId: string;
-  onCreated: (product: Product) => void;
+  onCreated: (product: Product, priceMessage?: string) => void;
   onCancel?: () => void;
 }
 
@@ -17,9 +22,31 @@ export default function CreateProductPanel({
   const { units, isLoading, error, refreshProducts, addProduct } =
     useProductContext();
 
-  async function handleSubmit(input: CreateProductInput): Promise<void> {
+  async function handleSubmit(
+    input: CreateProductInput,
+    krogerPrice?: KrogerPriceSelection,
+  ): Promise<void> {
     const saved = await addProduct(input);
-    onCreated(saved);
+    if (!krogerPrice) {
+      onCreated(saved);
+      return;
+    }
+
+    try {
+      await createProductPrice({
+        productId: saved.productId,
+        storeLocationId: krogerPrice.storeLocationId,
+        price: krogerPrice.price,
+        currencyCode: 'USD',
+        source: 'kroger',
+      });
+      onCreated(saved, `Kroger price $${krogerPrice.price} recorded.`);
+    } catch {
+      onCreated(
+        saved,
+        'The product was added, but its Kroger price could not be recorded. You can add it from the price panel.',
+      );
+    }
   }
 
   if (error) {

@@ -35,3 +35,18 @@ export interface Unit {
   conversionToBase: string;
   createdAt: string;
 }
+
+export interface KrogerProductSuggestion {
+  upc: string | null;
+  productName: string;
+  brand: string | null;
+  packageSize: string | null;
+  regularPrice: string | null;
+  promoPrice: string | null;
+  currentPrice: string | null;
+}
+
+export interface KrogerPriceSelection {
+  storeLocationId: string;
+  price: string;
+}

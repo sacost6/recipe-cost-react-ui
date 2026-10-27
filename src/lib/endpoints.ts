@@ -4,6 +4,7 @@ const INGREDIENTS = '/api/ingredients';
 const CATEGORIES = '/api/categories';
 const UNITS = '/api/units';
 const STORE_LOCATIONS = '/api/store-locations';
+const KROGER = '/api/kroger';
 const RETAILERS = '/api/retailers';
 const RECIPES = '/api/recipes';
 export const endpoints = {
@@ -45,6 +46,9 @@ export const endpoints = {
       `${STORE_LOCATIONS}/kroger/search?${query}`,
     detail: (storeLocationId: string) =>
       `${STORE_LOCATIONS}/${encodeURIComponent(storeLocationId)}`,
+  },
+  kroger: {
+    productSearch: (query: string) => `${KROGER}/products/search?${query}`,
   },
   retailers: {
     list: RETAILERS,

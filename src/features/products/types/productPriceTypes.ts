@@ -3,6 +3,7 @@ export interface ProductPrice {
   productId: string;
   storeLocationId: string;
   price: string;
+  source?: 'manual' | 'kroger';
   currencyCode: string;
   recordedAt: string;
 }
@@ -12,4 +13,5 @@ export interface CreateProductPriceInput {
   price: string;
   storeLocationId: string;
   currencyCode: string;
+  source?: 'manual' | 'kroger';
 }
